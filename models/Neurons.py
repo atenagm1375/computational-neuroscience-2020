@@ -10,11 +10,6 @@ class LIF:
         self.threshold = threshold
 
         self.__u = self.u_rest
-        self.__t = 0
-        self.__dt = 1
-
-    def simulate(self, duration, time_step):
-        pass
 
     def __new_u(self):
         pass
