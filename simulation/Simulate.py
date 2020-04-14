@@ -1,4 +1,4 @@
-from Monitors import plot_firing_pattern
+import numpy as np
 
 
 class Simulate:
@@ -11,9 +11,9 @@ class Simulate:
         potential_list = []
         current_list = []
         time_list = []
-        time_interval = range(self.__t, self.__t + time_window, self.dt)
+        time_interval = np.arange(self.__t, self.__t + time_window, self.dt)
         for t in time_interval:
-            u = neuron.simulate(current, t, self.dt)
+            u = self.neuron._simulate(current, t, self.dt)
             potential_list.append(u)
             current_list.append(current(t))
             time_list.append(t)
