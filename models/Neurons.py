@@ -61,10 +61,10 @@ class AddaptiveELIF(ELIF):
 
     def _simulate(self, current, t, dt):
         self._u = self.__new_u(current, t, dt)
+        self.__w = self.__w + self._tau_dw_dt(t) * (1 / self.tau_w) * dt
         if self._u >= self.threshold:
             self._u = self.u_rest
             self.spike_times.append(t)
-        self.__w = self.__w + self._tau_dw_dt(t) * (1 / self.tau_w) * dt
         return self._u
 
     def __new_u(self, current, t, dt):
