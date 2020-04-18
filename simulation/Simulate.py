@@ -13,9 +13,11 @@ class Simulate:
         time_list = []
         time_interval = np.arange(self.__t, self.__t + time_window, self.dt)
         for t in time_interval:
-            u = self.neuron._simulate(current, t, self.dt)
-            potential_list.append(u)
+            self.neuron._simulate(current, t, self.dt)
             current_list.append(current(t))
             time_list.append(t)
+            if t in self.neuron.spike_times:
+                current_list.append(current(t))
+                time_list.append(t)
             self.__t = t
-        return potential_list, current_list, time_list
+        return self.neuron.potential_list, current_list, time_list

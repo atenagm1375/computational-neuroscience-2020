@@ -13,7 +13,7 @@ def constant_current_test(Neuron, current_values, time_window, dt, **neuron_para
         lif = Neuron(**neuron_params)
         simulate = Simulate(lif, dt)
         potential_list, current_list, time_list = simulate.run(
-            time_window, lambda x: current_value)
+            time_window, lambda x: current_value if x > 10 else 0)
         firing_patterns.append(lif.spike_times)
         plot_firing_pattern(potential_list, current_list,
                             time_list, lif.u_rest, lif.threshold)
@@ -74,5 +74,5 @@ def question4(parameter_sets):
 
 
 if __name__ == "__main__":
-    with open(f'./tests/phase1/{sys.argv[2]}', 'rb') as file:
+    with open(f'./tests/phase1/q{sys.argv[1]}.data', 'rb') as file:
         globals()["question{}".format(sys.argv[1])](pickle.load(file))

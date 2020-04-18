@@ -1,256 +1,298 @@
 import pickle
 import numpy as np
 
+import sys
+
+folder = ''
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        folder = sys.argv[1]
 
 q1_list = [
     {
-        'time_window': 10,
-        'dt': 0.001,
-        'current_values': np.arange(0, 50, 5),
+        'time_window': 100,
+        'dt': 1,
+        'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
-            'r': 10,
-            'u_rest': -70,
-            'threshold': -50
+            'r': 1,
+            'u_rest': -65,
+            'threshold': -55
         }
     },
     {
-        'time_window': 10,
-        'dt': 0.001,
-        'current_values': np.arange(0, 50, 5),
-        'neuron_params': {
-            'tau': 5,
-            'r': 10,
-            'u_rest': -70,
-            'threshold': -50
-        }
-    },
-    {
-        'time_window': 10,
-        'dt': 0.001,
-        'current_values': np.arange(0, 50, 5),
-        'neuron_params': {
-            'tau': 20,
-            'r': 10,
-            'u_rest': -70,
-            'threshold': -50
-        }
-    },
-    {
-        'time_window': 10,
-        'dt': 0.001,
-        'current_values': np.arange(0, 50, 5),
+        'time_window': 100,
+        'dt': 1,
+        'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
-            'r': 5,
-            'u_rest': -70,
-            'threshold': -50
+            'r': 2,
+            'u_rest': -65,
+            'threshold': -55
         }
     },
     {
-        'time_window': 10,
-        'dt': 0.001,
-        'current_values': np.arange(0, 50, 5),
+        'time_window': 100,
+        'dt': 1,
+        'current_values': np.arange(2, 21, 2),
         'neuron_params': {
-            'tau': 20,
-            'r': 10,
+            'tau': 12,
+            'r': 1,
+            'u_rest': -65,
+            'threshold': -55
+        }
+    },
+    {
+        'time_window': 100,
+        'dt': 1,
+        'current_values': np.arange(2, 21, 2),
+        'neuron_params': {
+            'tau': 8,
+            'r': 1,
+            'u_rest': -65,
+            'threshold': -55
+        }
+    },
+    {
+        'time_window': 100,
+        'dt': 1,
+        'current_values': np.arange(2, 21, 2),
+        'neuron_params': {
+            'tau': 10,
+            'r': 1,
             'u_rest': -70,
             'threshold': -50
         }
     }
 ]
-with open('./q1.data', 'wb') as file:
+with open(f'./{folder}/q1.data', 'wb') as file:
     pickle.dump(q1_list, file)
 
 
 q2_list = [
     {
-        'time_window': 10,
-        'dt': 0.01,
-        'current_range': (10, 100),
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
         'neuron_params': {
             'tau': 10,
-            'r': 10,
-            'u_rest': -70,
-            'threshold': -50
-        }
-    },
-    {
-        'time_window': 10,
-        'dt': 0.01,
-        'current_range': (10, 100),
-        'neuron_params': {
-            'tau': 20,
-            'r': 10,
-            'u_rest': -70,
-            'threshold': -50
-        }
-    },
-    {
-        'time_window': 10,
-        'dt': 0.01,
-        'current_range': (10, 100),
-        'neuron_params': {
-            'tau': 10,
-            'r': 5,
+            'r': 1,
             'u_rest': -65,
-            'threshold': -50
-        }
-    },
-    {
-        'time_window': 10,
-        'dt': 0.01,
-        'current_range': (10, 100),
-        'neuron_params': {
-            'tau': 5,
-            'r': 10,
-            'u_rest': -70,
             'threshold': -55
         }
     },
     {
-        'time_window': 10,
-        'dt': 0.01,
-        'current_range': (10, 100),
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
         'neuron_params': {
-            'tau': 15,
-            'r': 10,
+            'tau': 10,
+            'r': 2,
+            'u_rest': -65,
+            'threshold': -55
+        }
+    },
+    {
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
+        'neuron_params': {
+            'tau': 12,
+            'r': 1,
+            'u_rest': -65,
+            'threshold': -55
+        }
+    },
+    {
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
+        'neuron_params': {
+            'tau': 8,
+            'r': 1,
+            'u_rest': -65,
+            'threshold': -55
+        }
+    },
+    {
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
+        'neuron_params': {
+            'tau': 10,
+            'r': 1,
             'u_rest': -70,
             'threshold': -50
         }
     }
 ]
-with open('./q2.data', 'wb') as file:
+with open(f'./{folder}/q2.data', 'wb') as file:
     pickle.dump(q2_list, file)
 
 
 q3_list = [
     {
-        'time_window': 10,
-        'dt': 0.01,
-        'current_range': (10, 100),
-        'current_values': np.arange(10, 100, 10),
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
+        'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
-            'r': 10,
+            'r': 1,
             'u_rest': -70,
-            'threshold': -50
+            'threshold': -55,
+            'delta_t': 1,
+            'theta_rh': -58
         }
     },
     {
-        'time_window': 10,
-        'dt': 0.01,
-        'current_range': (10, 100),
-        'current_values': np.arange(10, 100, 10),
-        'neuron_params': {
-            'tau': 20,
-            'r': 10,
-            'u_rest': -70,
-            'threshold': -50
-        }
-    },
-    {
-        'time_window': 10,
-        'dt': 0.01,
-        'current_range': (10, 100),
-        'current_values': np.arange(10, 100, 10),
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
+        'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
-            'r': 5,
-            'u_rest': -65,
-            'threshold': -50
+            'r': 1,
+            'u_rest': -70,
+            'threshold': -55,
+            'delta_t': 0.2,
+            'theta_rh': -58
         }
     },
     {
-        'time_window': 10,
-        'dt': 0.01,
-        'current_range': (10, 100),
-        'current_values': np.arange(10, 100, 10),
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
+        'current_values': np.arange(2, 21, 2),
         'neuron_params': {
-            'tau': 5,
-            'r': 10,
+            'tau': 10,
+            'r': 1,
             'u_rest': -70,
-            'threshold': -55
+            'threshold': -55,
+            'delta_t': 2,
+            'theta_rh': -58
         }
     },
     {
-        'time_window': 10,
-        'dt': 0.01,
-        'current_range': (10, 100),
-        'current_values': np.arange(10, 100, 10),
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
+        'current_values': np.arange(2, 21, 2),
         'neuron_params': {
-            'tau': 15,
-            'r': 10,
+            'tau': 10,
+            'r': 1,
             'u_rest': -70,
-            'threshold': -50
+            'threshold': -55,
+            'delta_t': 1,
+            'theta_rh': -60
+        }
+    },
+    {
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
+        'current_values': np.arange(2, 21, 2),
+        'neuron_params': {
+            'tau': 10,
+            'r': 1,
+            'u_rest': -70,
+            'threshold': -55,
+            'delta_t': 1,
+            'theta_rh': -55
         }
     }
 ]
-with open('./q3.data', 'wb') as file:
+with open(f'./{folder}/q3.data', 'wb') as file:
     pickle.dump(q3_list, file)
 
 
 q4_list = [
     {
-        'time_window': 5,
-        'dt': 0.001,
-        'current_range': (10, 100),
-        'current_values': np.arange(10, 100, 10),
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
+        'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
-            'r': 10,
+            'r': 1,
             'u_rest': -70,
-            'threshold': -50
+            'threshold': -55,
+            'delta_t': 1,
+            'theta_rh': -68,
+            'tau_w': 20,
+            'a': 1,
+            'b': 1
         }
     },
     {
-        'time_window': 5,
-        'dt': 0.001,
-        'current_range': (10, 100),
-        'current_values': np.arange(10, 100, 10),
-        'neuron_params': {
-            'tau': 20,
-            'r': 10,
-            'u_rest': -70,
-            'threshold': -50
-        }
-    },
-    {
-        'time_window': 5,
-        'dt': 0.001,
-        'current_range': (10, 100),
-        'current_values': np.arange(10, 100, 10),
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
+        'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
-            'r': 5,
-            'u_rest': -65,
-            'threshold': -50
+            'r': 1,
+            'u_rest': -70,
+            'threshold': -55,
+            'delta_t': 1,
+            'theta_rh': -68,
+            'tau_w': 20,
+            'a': 2,
+            'b': 2
         }
     },
     {
-        'time_window': 5,
-        'dt': 0.001,
-        'current_range': (10, 100),
-        'current_values': np.arange(10, 100, 10),
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
+        'current_values': np.arange(2, 21, 2),
         'neuron_params': {
-            'tau': 5,
-            'r': 10,
+            'tau': 10,
+            'r': 1,
             'u_rest': -70,
-            'threshold': -55
+            'threshold': -55,
+            'delta_t': 1,
+            'theta_rh': -68,
+            'tau_w': 20,
+            'a': 0.5,
+            'b': 2
         }
     },
     {
-        'time_window': 5,
-        'dt': 0.001,
-        'current_range': (10, 100),
-        'current_values': np.arange(10, 100, 10),
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
+        'current_values': np.arange(2, 21, 2),
         'neuron_params': {
-            'tau': 15,
-            'r': 10,
+            'tau': 10,
+            'r': 1,
             'u_rest': -70,
-            'threshold': -50
+            'threshold': -55,
+            'delta_t': 1,
+            'theta_rh': -68,
+            'tau_w': 5,
+            'a': 1,
+            'b': 2.5
+        }
+    },
+    {
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (0, 100),
+        'current_values': np.arange(2, 21, 2),
+        'neuron_params': {
+            'tau': 10,
+            'r': 1,
+            'u_rest': -70,
+            'threshold': -55,
+            'delta_t': 1,
+            'theta_rh': -68,
+            'tau_w': 10,
+            'a': 1,
+            'b': 2.5
         }
     }
 ]
-with open('./q4.data', 'wb') as file:
+with open(f'./{folder}/q4.data', 'wb') as file:
     pickle.dump(q4_list, file)
