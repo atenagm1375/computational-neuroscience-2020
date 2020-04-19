@@ -60,7 +60,7 @@ q1_list = [
         'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
-            'r': 1,
+            'r': 2,
             'u_rest': -70,
             'threshold': -50
         }
@@ -74,7 +74,7 @@ q2_list = [
     {
         'time_window': 100,
         'dt': 1,
-        'current_range': (0, 100),
+        'current_range': (7, 13),
         'neuron_params': {
             'tau': 10,
             'r': 1,
@@ -85,7 +85,7 @@ q2_list = [
     {
         'time_window': 100,
         'dt': 1,
-        'current_range': (0, 100),
+        'current_range': (7, 13),
         'neuron_params': {
             'tau': 10,
             'r': 2,
@@ -96,7 +96,7 @@ q2_list = [
     {
         'time_window': 100,
         'dt': 1,
-        'current_range': (0, 100),
+        'current_range': (7, 13),
         'neuron_params': {
             'tau': 12,
             'r': 1,
@@ -107,7 +107,7 @@ q2_list = [
     {
         'time_window': 100,
         'dt': 1,
-        'current_range': (0, 100),
+        'current_range': (7, 13),
         'neuron_params': {
             'tau': 8,
             'r': 1,
@@ -118,7 +118,7 @@ q2_list = [
     {
         'time_window': 100,
         'dt': 1,
-        'current_range': (0, 100),
+        'current_range': (7, 13),
         'neuron_params': {
             'tau': 10,
             'r': 1,
@@ -135,7 +135,7 @@ q3_list = [
     {
         'time_window': 100,
         'dt': 1,
-        'current_range': (0, 100),
+        'current_range': (7, 13),
         'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
@@ -149,7 +149,7 @@ q3_list = [
     {
         'time_window': 100,
         'dt': 1,
-        'current_range': (0, 100),
+        'current_range': (7, 13),
         'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
@@ -163,7 +163,7 @@ q3_list = [
     {
         'time_window': 100,
         'dt': 1,
-        'current_range': (0, 100),
+        'current_range': (7, 13),
         'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
@@ -177,7 +177,7 @@ q3_list = [
     {
         'time_window': 100,
         'dt': 1,
-        'current_range': (0, 100),
+        'current_range': (7, 13),
         'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
@@ -191,7 +191,7 @@ q3_list = [
     {
         'time_window': 100,
         'dt': 1,
-        'current_range': (0, 100),
+        'current_range': (7, 13),
         'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
@@ -211,15 +211,15 @@ q4_list = [
     {
         'time_window': 100,
         'dt': 1,
-        'current_range': (0, 100),
+        'current_range': (7, 13),
         'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
-            'r': 1,
+            'r': 2,
             'u_rest': -70,
             'threshold': -55,
             'delta_t': 1,
-            'theta_rh': -68,
+            'theta_rh': -58,
             'tau_w': 20,
             'a': 1,
             'b': 1
@@ -228,69 +228,69 @@ q4_list = [
     {
         'time_window': 100,
         'dt': 1,
-        'current_range': (0, 100),
+        'current_range': (7, 13),
         'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
-            'r': 1,
+            'r': 2,
             'u_rest': -70,
             'threshold': -55,
             'delta_t': 1,
-            'theta_rh': -68,
-            'tau_w': 20,
-            'a': 2,
-            'b': 2
-        }
-    },
-    {
-        'time_window': 100,
-        'dt': 1,
-        'current_range': (0, 100),
-        'current_values': np.arange(2, 21, 2),
-        'neuron_params': {
-            'tau': 10,
-            'r': 1,
-            'u_rest': -70,
-            'threshold': -55,
-            'delta_t': 1,
-            'theta_rh': -68,
-            'tau_w': 20,
-            'a': 0.5,
-            'b': 2
-        }
-    },
-    {
-        'time_window': 100,
-        'dt': 1,
-        'current_range': (0, 100),
-        'current_values': np.arange(2, 21, 2),
-        'neuron_params': {
-            'tau': 10,
-            'r': 1,
-            'u_rest': -70,
-            'threshold': -55,
-            'delta_t': 1,
-            'theta_rh': -68,
+            'theta_rh': -58,
             'tau_w': 5,
             'a': 1,
-            'b': 2.5
+            'b': 1
         }
     },
     {
         'time_window': 100,
         'dt': 1,
-        'current_range': (0, 100),
+        'current_range': (7, 13),
         'current_values': np.arange(2, 21, 2),
         'neuron_params': {
             'tau': 10,
-            'r': 1,
+            'r': 2,
             'u_rest': -70,
             'threshold': -55,
             'delta_t': 1,
-            'theta_rh': -68,
+            'theta_rh': -58,
             'tau_w': 10,
             'a': 1,
-            'b': 2.5
+            'b': 1
+        }
+    },
+    {
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (7, 13),
+        'current_values': np.arange(2, 21, 2),
+        'neuron_params': {
+            'tau': 10,
+            'r': 2,
+            'u_rest': -70,
+            'threshold': -55,
+            'delta_t': 1,
+            'theta_rh': -58,
+            'tau_w': 20,
+            'a': 1,
+            'b': 5
+        }
+    },
+    {
+        'time_window': 100,
+        'dt': 1,
+        'current_range': (7, 13),
+        'current_values': np.arange(2, 21, 2),
+        'neuron_params': {
+            'tau': 10,
+            'r': 2,
+            'u_rest': -70,
+            'threshold': -55,
+            'delta_t': 1,
+            'theta_rh': -58,
+            'tau_w': 20,
+            'a': 5,
+            'b': 1
         }
     }
 ]

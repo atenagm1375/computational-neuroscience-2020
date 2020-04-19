@@ -11,6 +11,7 @@ def plot_f_i_curve(firing_patterns, time_window, currents, save_to=None):
         plt.show()
     else:
         plt.savefig(save_to)
+        plt.close()
 
 
 def plot_firing_pattern(potentials, currents, times, u_rest, threshold, save_to=None):
@@ -26,4 +27,5 @@ def plot_firing_pattern(potentials, currents, times, u_rest, threshold, save_to=
     if save_to is None:
         plt.show()
     else:
-        plt.savefig(save_to)
+        fig.savefig(save_to)
+        plt.close()
