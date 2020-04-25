@@ -16,8 +16,8 @@ class Simulate:
             self.neuron._simulate(current, t, self.dt)
             current_list.append(current(t))
             time_list.append(t)
-            if t in self.neuron.spike_times:
-                current_list.append(current(t))
-                time_list.append(t)
+            # if t in self.neuron.spike_times:
+            #     current_list.append(current(t))
+            #     time_list.append(t)
             self.__t = t
-        return self.neuron.potential_list, current_list, time_list
+        return current_list, time_list

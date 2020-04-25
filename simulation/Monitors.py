@@ -29,3 +29,15 @@ def plot_firing_pattern(potentials, currents, times, u_rest, threshold, save_to=
     else:
         fig.savefig(save_to)
         plt.close()
+
+
+def raster_plot(spikes_per_neuron, colors=None, save_to=None):
+    plt.eventplot(spikes_per_neuron, color=colors, linelengths=0.2)
+    plt.title("Raster Plot")
+    plt.ylabel("Neuron")
+    plt.xlabel("time")
+    if save_to is None:
+        plt.show()
+    else:
+        fig.savefig(save_to)
+        plt.close()
