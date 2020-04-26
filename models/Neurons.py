@@ -11,9 +11,10 @@ class LIF:
         self._u = self.u_rest
         self.spike_times = []
         self.potential_list = []
+        self.input = 0
 
     def _simulate(self, current, t, dt):
-        u = self.__new_u(current, t, dt)
+        u = self.__new_u(current + self.input, t, dt)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest
@@ -24,10 +25,13 @@ class LIF:
         self._u = u
 
     def __new_u(self, current, t, dt):
-        return self._u + self._tau_du_dt(current(t)) * (1 / self.tau) * dt
+        return self._u + self._tau_du_dt(current) * (1 / self.tau) * dt
 
     def _tau_du_dt(self, i):
         return -(self._u - self.u_rest) + self.r * i
+
+    def effect(self, alpha, t):
+        return np.sum([alpha(t - f) for f in self.spike_times])
 
 
 class ELIF(LIF):
@@ -37,7 +41,7 @@ class ELIF(LIF):
         self.theta_rh = theta_rh
 
     def _simulate(self, current, t, dt):
-        u = self.__new_u(current, t, dt)
+        u = self.__new_u(current + self.input, t, dt)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest
@@ -51,7 +55,7 @@ class ELIF(LIF):
         return super(ELIF, self)._tau_du_dt(i) + self.delta_t * np.exp((self._u - self.theta_rh) / self.delta_t)
 
     def __new_u(self, current, t, dt):
-        return self._u + self._tau_du_dt(current(t)) * (1 / self.tau) * dt
+        return self._u + self._tau_du_dt(current) * (1 / self.tau) * dt
 
 
 class AddaptiveELIF(ELIF):
@@ -71,7 +75,7 @@ class AddaptiveELIF(ELIF):
             self.b * self.tau_w * np.count_nonzero(self.spike_times == t)
 
     def _simulate(self, current, t, dt):
-        u = self.__new_u(current, t, dt)
+        u = self.__new_u(current + self.input, t, dt)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest
@@ -83,4 +87,4 @@ class AddaptiveELIF(ELIF):
         self._u = u
 
     def __new_u(self, current, t, dt):
-        return self._u + self._tau_du_dt(current(t)) * (1 / self.tau) * dt
+        return self._u + self._tau_du_dt(current) * (1 / self.tau) * dt
