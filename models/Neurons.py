@@ -2,7 +2,7 @@ import numpy as np
 
 
 class LIF:
-    def __init__(self, tau=10, u_rest=-70, r=5, threshold=-50):
+    def __init__(self, tau=10, u_rest=-70, r=5, threshold=-50, is_inh=False):
         self.tau = tau
         self.u_rest = u_rest
         self.r = r
@@ -12,9 +12,10 @@ class LIF:
         self.spike_times = []
         self.potential_list = []
         self.input = 0
+        self.is_inh = is_inh
 
     def _simulate(self, current, t, dt):
-        u = self.__new_u(current + self.input, t, dt)
+        u = self.__new_u(current + (-1)**self.is_inh * self.input, t, dt)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest
@@ -41,7 +42,7 @@ class ELIF(LIF):
         self.theta_rh = theta_rh
 
     def _simulate(self, current, t, dt):
-        u = self.__new_u(current + self.input, t, dt)
+        u = self.__new_u(current + (-1)**self.is_inh * self.input, t, dt)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest
@@ -75,7 +76,7 @@ class AddaptiveELIF(ELIF):
             self.b * self.tau_w * np.count_nonzero(self.spike_times == t)
 
     def _simulate(self, current, t, dt):
-        u = self.__new_u(current + self.input, t, dt)
+        u = self.__new_u(current + (-1)**self.is_inh * self.input, t, dt)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest
