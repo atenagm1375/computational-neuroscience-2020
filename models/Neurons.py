@@ -15,7 +15,7 @@ class LIF:
         self.is_inh = is_inh
 
     def _simulate(self, current, t, dt):
-        u = self.__new_u(current + (-1)**self.is_inh * self.input, t, dt)
+        u = self.__new_u(current + self.input, t, dt)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest
@@ -32,7 +32,7 @@ class LIF:
         return -(self._u - self.u_rest) + self.r * i
 
     def effect(self, alpha, t):
-        return np.sum([alpha(t - f) for f in self.spike_times])
+        return (-1)**self.is_inh * np.sum(alpha)
 
 
 class ELIF(LIF):
@@ -42,7 +42,7 @@ class ELIF(LIF):
         self.theta_rh = theta_rh
 
     def _simulate(self, current, t, dt):
-        u = self.__new_u(current + (-1)**self.is_inh * self.input, t, dt)
+        u = self.__new_u(current + self.input, t, dt)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest
@@ -76,7 +76,7 @@ class AddaptiveELIF(ELIF):
             self.b * self.tau_w * np.count_nonzero(self.spike_times == t)
 
     def _simulate(self, current, t, dt):
-        u = self.__new_u(current + (-1)**self.is_inh * self.input, t, dt)
+        u = self.__new_u(current + self.input, t, dt)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest

@@ -4,13 +4,12 @@ from copy import deepcopy
 
 
 class Connection:
-    def __init__(self, pre, post, synapse, alpha):
+    def __init__(self, pre, post, synapse):
         self.pre = pre
         self.post = post
         self.synapse = synapse
 
         self.pattern = [[]] * self.post.number
-        self.alpha = alpha
 
     def apply(self, connection_type, **kwargs):
         if connection_type == "full":
@@ -37,7 +36,14 @@ class Connection:
         else:
             raise ValueError("Invalid connection type!")
 
+        return self
+
+    def alpha(self, t, spikes):
+        return [np.exp(f - t) for f in spikes]
+
     def post_input(self, t):
         for i in range(self.post.number):
             for j, syn in self.pattern[i]:
-                self.post[i].input += syn.w * self.pre.effect(self.alpha, t)
+                self.post.neurons[i].input += syn.w * \
+                    self.pre.neurons[j].effect(
+                        self.alpha(t, self.pre.neurons[j].spike_times), t)

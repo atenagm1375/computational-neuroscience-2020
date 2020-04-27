@@ -7,7 +7,8 @@ class Population:
             zip([i for i in range(number)], [[]] * number))
 
     def add(self, number, neuron):
-        for i in number:
-            self.neurons.append(self.neuron)
+        for i in range(number):
+            self.neurons.append(neuron)
             self.connection_pattern[i + self.number] = []
+            self.spikes_per_neuron.append(neuron.spike_times)
         self.number += number

@@ -10,7 +10,7 @@ class Simulate:
         self.components = components
 
     def run(self, time_window, current):
-        if isinstance(self.components, models.Neuron.LIF):
+        if isinstance(self.components, models.Neurons.LIF):
             current_list = []
             time_list = []
             time_interval = np.arange(
@@ -25,13 +25,18 @@ class Simulate:
                 self.__t = t
             return current_list, time_list
         else:
+            time_interval = np.arange(
+                self.__t, self.__t + time_window, self.dt)
             for t in time_interval:
                 for connection in self.components["connections"]:
-                    for post_idx in connection.pattern:
-                        connection.post[post_idx]._simulate(
+                    for post_idx, post in enumerate(connection.pattern):
+                        connection.post.neurons[post_idx]._simulate(
                             current(t), t, self.dt)
-                        for i, syn in post_idx:
-                            connection.pre.neuron[i]._simulate(
+                        for i, syn in post:
+                            connection.pre.neurons[i]._simulate(
                                 current(t), t, self.dt)
                 for connection in self.components["connections"]:
                     connection.post_input(t)
+            for pop in self.components["populations"]:
+                for i in range(pop.number):
+                    pop.spikes_per_neuron[i] = pop.neurons[i].spike_times
