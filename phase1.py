@@ -12,10 +12,10 @@ def constant_current_test(Neuron, current_values, time_window, dt, **neuron_para
     f_i_curve_name = f"./tests/phase1/gain_function_{neuron_params}.png"
     for current_value in current_values:
         plot_name = f"./tests/phase1/{neuron_params}_{time_window}_{current_value}.png"
-        lif = Neuron(**neuron_params)
+        lif = Neuron(current=lambda x: current_value if x >
+                     10 else 0, **neuron_params)
         simulate = Simulate(lif, dt)
-        current_list, time_list = simulate.run(
-            time_window, lambda x: current_value if x > 10 else 0)
+        current_list, time_list = simulate.run(time_window)
         firing_patterns.append(lif.spike_times)
         plot_firing_pattern(lif.potential_list, current_list,
                             time_list, lif.u_rest, lif.threshold, save_to=plot_name)
@@ -25,10 +25,10 @@ def constant_current_test(Neuron, current_values, time_window, dt, **neuron_para
 
 def random_current_test(Neuron, current_range, time_window, dt, **neuron_params):
     plot_name = f"./tests/phase1/{neuron_params}_{time_window}_randomCurrent.png"
-    lif = Neuron(**neuron_params)
+    lif = Neuron(current=lambda x: np.random.uniform(
+        *current_range) if x > 10 else 0, **neuron_params)
     simulate = Simulate(lif, dt)
-    current_list, time_list = simulate.run(
-        time_window, lambda x: np.random.uniform(*current_range) if x > 10 else 0)
+    current_list, time_list = simulate.run(time_window)
     plot_firing_pattern(lif.potential_list, current_list,
                         time_list, lif.u_rest, lif.threshold, save_to=plot_name)
 

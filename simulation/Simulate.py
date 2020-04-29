@@ -4,39 +4,43 @@ import numpy as np
 
 
 class Simulate:
-    def __init__(self, components, time_step=1):
+    def __init__(self, neuron=None, synapse=None, populations=None, connections=None, time_step=1):
         self.dt = time_step
         self.__t = 0
-        self.components = components
+        self.neuron = neuron
+        self.synapse = synapse
+        self.populations = populations
+        self.connections = connections
 
-    def run(self, time_window, current):
-        if isinstance(self.components, models.Neurons.LIF):
+    def run(self, time_window):
+        if self.neuron:
             current_list = []
             time_list = []
             time_interval = np.arange(
                 self.__t, self.__t + time_window, self.dt)
             for t in time_interval:
-                self.components._simulate(current(t), t, self.dt)
-                current_list.append(current(t))
+                self.neuron.step(t, self.dt)
+                current_list.append(self.neuron.current(t))
                 time_list.append(t)
-                if t in self.components.spike_times:
-                    current_list.append(current(t))
+                if len(self.neuron.spike_times) > 0 and self.neuron.spike_times[-1] == t:
+                    current_list.append(self.neuron.current(t))
                     time_list.append(t)
                 self.__t = t
-            return current_list, time_list
         else:
+            current_list = []
+            time_list = []
             time_interval = np.arange(
                 self.__t, self.__t + time_window, self.dt)
             for t in time_interval:
-                for connection in self.components["connections"]:
-                    for post_idx, post in enumerate(connection.pattern):
-                        connection.post.neurons[post_idx]._simulate(
-                            current(t), t, self.dt)
-                        for i, syn in post:
-                            connection.pre.neurons[i]._simulate(
-                                current(t), t, self.dt)
-                for connection in self.components["connections"]:
-                    connection.post_input(t)
-            for pop in self.components["populations"]:
-                for i in range(pop.number):
-                    pop.spikes_per_neuron[i] = pop.neurons[i].spike_times
+                if t % 10 == 0:
+                    print(t)
+                for pop in self.populations:
+                    pop.step(t, self.dt)
+                for pop in self.populations:
+                    pop.input_reset(t)
+                current_list.append(pop.neurons[0].current(t))
+                time_list.append(t)
+            for pop in self.populations:
+                pop.compute_spike_history()
+
+        return current_list, time_list

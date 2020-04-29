@@ -1,14 +1,31 @@
-class Population:
-    def __init__(self, number, neuron):
-        self.number = number
-        self.neurons = [neuron] * number
-        self.spikes_per_neuron = [neuron.spike_times] * number
-        self.connection_pattern = dict(
-            zip([i for i in range(number)], [[]] * number))
+import numpy as np
 
-    def add(self, number, neuron):
-        for i in range(number):
+
+class Population:
+    def __init__(self, size, neuron_type, exc_ratio=1, trace_alpha=0.2, **neuron_params):
+        self.size = size
+        exc_num = int(exc_ratio * size)
+        self.neurons = [neuron_type(**neuron_params)._set_inh()] * \
+            (size - exc_num) + [neuron_type(**neuron_params)] * exc_num
+        self.spikes_per_neuron = []
+        self.trace_alpha = trace_alpha
+
+    def add(self, size, neuron):
+        for i in range(size):
             self.neurons.append(neuron)
-            self.connection_pattern[i + self.number] = []
-            self.spikes_per_neuron.append(neuron.spike_times)
-        self.number += number
+        self.size += size
+
+    def step(self, t, dt):
+        for neuron in self.neurons:
+            neuron.step(t, dt)
+
+    def input_reset(self, t):
+        for neuron in self.neurons:
+            neuron.input_reset(t, self.trace_alpha)
+
+    def compute_spike_history(self):
+        spike_history = []
+        for i, neuron in enumerate(self.neurons):
+            for t_f in neuron.spike_times:
+                spike_history.append([i, t_f])
+        self.spikes_per_neuron = np.array(spike_history)
