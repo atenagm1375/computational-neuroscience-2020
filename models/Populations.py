@@ -9,6 +9,7 @@ class Population:
             (size - exc_num) + [neuron_type(**neuron_params)] * exc_num
         self.spikes_per_neuron = []
         self.trace_alpha = trace_alpha
+        self.activity = []
 
     def add(self, size, neuron):
         for i in range(size):
@@ -16,8 +17,12 @@ class Population:
         self.size += size
 
     def step(self, t, dt):
+        self.activity.append([t, 0])
         for neuron in self.neurons:
             neuron.step(t, dt)
+            if len(neuron.spike_times) > 0 and neuron.spike_times[-1] == t:
+                self.activity[-1][1] += 1
+        self.activity[-1][1] /= self.size
 
     def input_reset(self, t):
         for neuron in self.neurons:

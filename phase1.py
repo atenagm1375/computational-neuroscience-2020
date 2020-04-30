@@ -7,13 +7,28 @@ import pickle
 import sys
 
 
+def current_generator(duration, dt, values):
+    current_list = []
+    for i in np.arange(duration * dt):
+        if i < 5:
+            current_list.append(0)
+        elif i < duration - 5:
+            if isinstance(values, tuple):
+                current_list.append(np.random.uniform(*values))
+            else:
+                current_list.append(values)
+        else:
+            current_list.append(0)
+    return current_list
+
+
 def constant_current_test(Neuron, current_values, time_window, dt, **neuron_params):
     firing_patterns = []
     f_i_curve_name = f"./tests/phase1/gain_function_{neuron_params}.png"
     for current_value in current_values:
         plot_name = f"./tests/phase1/{neuron_params}_{time_window}_{current_value}.png"
-        lif = Neuron(current=lambda x: current_value if x >
-                     10 else 0, **neuron_params)
+        lif = Neuron(current=current_generator(
+            time_window, dt, current_value), **neuron_params)
         simulate = Simulate(lif, dt)
         current_list, time_list = simulate.run(time_window)
         firing_patterns.append(lif.spike_times)
@@ -25,8 +40,8 @@ def constant_current_test(Neuron, current_values, time_window, dt, **neuron_para
 
 def random_current_test(Neuron, current_range, time_window, dt, **neuron_params):
     plot_name = f"./tests/phase1/{neuron_params}_{time_window}_randomCurrent.png"
-    lif = Neuron(current=lambda x: np.random.uniform(
-        *current_range) if x > 10 else 0, **neuron_params)
+    lif = Neuron(current=current_generator(
+        time_window, dt, current_range), **neuron_params)
     simulate = Simulate(lif, dt)
     current_list, time_list = simulate.run(time_window)
     plot_firing_pattern(lif.potential_list, current_list,

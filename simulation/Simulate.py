@@ -20,10 +20,11 @@ class Simulate:
                 self.__t, self.__t + time_window, self.dt)
             for t in time_interval:
                 self.neuron.step(t, self.dt)
-                current_list.append(self.neuron.current(t))
+                current_list.append(self.neuron._current(int(t // self.dt)))
                 time_list.append(t)
                 if len(self.neuron.spike_times) > 0 and self.neuron.spike_times[-1] == t:
-                    current_list.append(self.neuron.current(t))
+                    current_list.append(
+                        self.neuron._current(int(t // self.dt)))
                     time_list.append(t)
                 self.__t = t
         else:
@@ -38,7 +39,7 @@ class Simulate:
                     pop.step(t, self.dt)
                 for pop in self.populations:
                     pop.input_reset(t)
-                current_list.append(pop.neurons[0].current(t))
+                current_list.append(pop.neurons[0]._current(int(t // self.dt)))
                 time_list.append(t)
             for pop in self.populations:
                 pop.compute_spike_history()

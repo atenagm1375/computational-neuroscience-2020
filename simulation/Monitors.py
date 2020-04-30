@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+import numpy as np
+
 
 def plot_f_i_curve(firing_patterns, time_window, currents, save_to=None):
     frequencies = [len(spikes) / time_window for spikes in firing_patterns]
@@ -45,6 +47,22 @@ def raster_plot(spikes_per_neuron, colors=None, save_to=None):
     plt.title("Raster Plot")
     plt.ylabel("Neuron")
     plt.xlabel("time")
+    if save_to is None:
+        plt.show()
+    else:
+        fig.savefig(save_to)
+        plt.close()
+
+
+def decision_plot(activity1, activity2, save_to=None):
+    activity1 = np.array(activity1)
+    activity2 = np.array(activity2)
+    plt.plot(activity1[:, 0], activity1[:, 1], 'b', label="Population 1")
+    plt.plot(activity2[:, 0], activity2[:, 1], 'c', label="Population 2")
+    plt.title("POPULATION ACTIVITIES")
+    plt.xlabel("time")
+    plt.ylabel("Activity")
+    plt.legend()
     if save_to is None:
         plt.show()
     else:
