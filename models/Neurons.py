@@ -32,8 +32,7 @@ class LIF:
             self.spike_times.append(t)
             self.potential_list.append(u)
             for synapse in self.target_synapses:
-                synapse.post.input += ((-1)**int(self.is_inh)
-                                       * synapse.w * u)
+                synapse.post.input += ((-1)**int(self.is_inh) * synapse.w * u)
         else:
             self.potential_list.append(u)
         self._u = u + self.input
@@ -65,7 +64,7 @@ class ELIF(LIF):
             self.spike_times.append(t)
             self.potential_list.append(u)
             for synapse in self.target_synapses:
-                synapse.post.input += ((-1)**int(self.is_inh) * synapse.w)
+                synapse.post.input += ((-1)**int(self.is_inh) * synapse.w * u)
         else:
             self.potential_list.append(u)
         self._u = u + self.input
@@ -102,7 +101,7 @@ class AddaptiveELIF(ELIF):
             self.spike_times.append(t)
             self.potential_list.append(u)
             for synapse in self.target_synapses:
-                synapse.post.input += ((-1)**int(self.is_inh) * synapse.w)
+                synapse.post.input += ((-1)**int(self.is_inh) * synapse.w * u)
         else:
             self.potential_list.append(u)
         self.__w = self.__w + self._tau_dw_dt(t) * (dt / self.tau_w)
