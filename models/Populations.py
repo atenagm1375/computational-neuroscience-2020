@@ -2,11 +2,15 @@ import numpy as np
 
 
 class Population:
-    def __init__(self, size, neuron_type, exc_ratio=1, trace_alpha=0.2, **neuron_params):
+    def __init__(self, size, neuron_type, exc_ratio=1, trace_alpha=0.5, **neuron_params):
         self.size = size
         exc_num = int(exc_ratio * size)
-        self.neurons = [neuron_type(**neuron_params)._set_inh()] * \
-            (size - exc_num) + [neuron_type(**neuron_params)] * exc_num
+        self.neurons = []
+        exc_num = int(exc_ratio * size)
+        for i in range(exc_num):
+            self.neurons.append(neuron_type(**neuron_params))
+        for i in range(self.size - exc_num):
+            self.neurons.append(neuron_type(**neuron_params)._set_inh())
         self.spikes_per_neuron = []
         self.trace_alpha = trace_alpha
         self.activity = []

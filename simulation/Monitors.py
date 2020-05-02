@@ -43,7 +43,8 @@ def raster_plot(spikes_per_neuron, colors=None, save_to=None):
     #             y=spikes_per_neuron[:, 0], marker='.')
     fig = plt.figure(num=None, figsize=(8, 6), dpi=80,
                      facecolor='w', edgecolor='k')
-    sns.scatterplot(x=spikes_per_neuron[:, 1], y=spikes_per_neuron[:, 0])
+    sns.scatterplot(
+        x=spikes_per_neuron[:, 1], y=spikes_per_neuron[:, 0], s=10, hue=colors)
     plt.title("Raster Plot")
     plt.ylabel("Neuron")
     plt.xlabel("time")

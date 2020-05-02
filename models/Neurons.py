@@ -33,7 +33,7 @@ class LIF:
             self.potential_list.append(u)
             for synapse in self.target_synapses:
                 synapse.post.input += ((-1)**int(self.is_inh)
-                                       * synapse.w * synapse.post._u)
+                                       * synapse.w * u)
         else:
             self.potential_list.append(u)
         self._u = u + self.input
