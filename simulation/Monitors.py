@@ -44,7 +44,7 @@ def raster_plot(spikes_per_neuron, colors=None, save_to=None):
     fig = plt.figure(num=None, figsize=(8, 6), dpi=80,
                      facecolor='w', edgecolor='k')
     sns.scatterplot(
-        x=spikes_per_neuron[:, 1], y=spikes_per_neuron[:, 0], s=10, hue=colors)
+        x=spikes_per_neuron[:, 1], y=spikes_per_neuron[:, 0], s=20, hue=colors)
     plt.title("Raster Plot")
     plt.ylabel("Neuron")
     plt.xlabel("time")
@@ -55,11 +55,14 @@ def raster_plot(spikes_per_neuron, colors=None, save_to=None):
         plt.close()
 
 
-def decision_plot(activity1, activity2, save_to=None):
+def decision_plot(activity1, activity2, activity3=None, save_to=None):
     activity1 = np.array(activity1)
     activity2 = np.array(activity2)
     plt.plot(activity1[:, 0], activity1[:, 1], 'b', label="Population 1")
     plt.plot(activity2[:, 0], activity2[:, 1], 'c', label="Population 2")
+    if activity3:
+        activity3 = np.array(activity3)
+        plt.plot(activity3[:, 0], activity3[:, 1], 'r', label="Population 3")
     plt.title("POPULATION ACTIVITIES")
     plt.xlabel("time")
     plt.ylabel("Activity")

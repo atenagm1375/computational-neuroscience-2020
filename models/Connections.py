@@ -13,21 +13,22 @@ class Connection:
 
     def apply(self, connection_type, **kwargs):
         if connection_type == "full":
-            w = self.initial_weights / self.post.size
+            mu, sigma = kwargs["mu"], kwargs["sigma"]
             for neuron_pre in self.pre.neurons:
                 for neuron_post in self.post.neurons:
                     neuron_pre.target_synapses.append(
-                        Synapse(neuron_pre, neuron_post, w))
+                        Synapse(neuron_pre, neuron_post, np.random.normal(mu, sigma)))
 
         elif connection_type == "fixed_prob":
             w, h = self.pre.size, self.post.size
-            n = int(kwargs["p"] * h)
-            w = self.initial_weights / n
+            n = int(kwargs["p"] * h * w)
+            # weight = self.initial_weights / n
+            mu, sigma = kwargs["mu"], kwargs["sigma"]
             points = [divmod(i, h) for i in np.random.choice(
-                range(w * h), n, replace=False)]
+                list(range(w * h)), n, replace=False)]
             for x in points:
-                self.pre[x[0]].target_synapses.append(
-                    Synapse(self.pre.neurons[x[0]], self.post.neurons[x[1]], w))
+                self.pre.neurons[x[0]].target_synapses.append(
+                    Synapse(self.pre.neurons[x[0]], self.post.neurons[x[1]], np.random.normal(mu, sigma)))
 
         elif connection_type == "fixed_pre":
             n = int(kwargs["p"] * self.post.size)

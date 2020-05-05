@@ -32,10 +32,11 @@ class LIF:
             self.spike_times.append(t)
             self.potential_list.append(u)
             for synapse in self.target_synapses:
-                synapse.post.input += ((-1)**int(self.is_inh) * synapse.w * u)
+                synapse.post.input += ((-1)**int(self.is_inh)
+                                       * synapse.w * (self.threshold - self.u_rest))
         else:
             self.potential_list.append(u)
-        self._u = u + self.input
+        self._u = u
 
     def __new_u(self, current, dt):
         return self._u + self._tau_du_dt(current) * (dt / self.tau)
@@ -44,6 +45,7 @@ class LIF:
         return -(self._u - self.u_rest) + self.r * i
 
     def input_reset(self, t, alpha):
+        self._u += self.input
         self.input -= alpha * self.input
         if self.input <= 0:
             self.input = 0
