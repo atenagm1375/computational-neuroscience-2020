@@ -16,6 +16,7 @@ class LIF:
         self.is_inh = is_inh
 
         self.target_synapses = []
+        self.time_to_apply = []
 
     def _set_inh(self):
         self.is_inh = True
@@ -24,8 +25,16 @@ class LIF:
     def _current(self, t):
         return self.current_list[t]
 
+    def _apply_pre_synaptic(self, t):
+        du = 0
+        if time_to_apply[0] == t:
+            self.time_to_apply.pop(0)
+            du += self.input
+        return du
+
     def step(self, t, dt):
         u = self.__new_u(self._current(int(t / dt)), dt)
+        # u += _apply_pre_synaptic(t)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest
@@ -60,16 +69,18 @@ class ELIF(LIF):
 
     def step(self, t, dt):
         u = self.__new_u(self._current(int(t // dt)), dt)
+        # u += _apply_pre_synaptic(t)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest
             self.spike_times.append(t)
             self.potential_list.append(u)
             for synapse in self.target_synapses:
-                synapse.post.input += ((-1)**int(self.is_inh) * synapse.w * u)
+                synapse.post.input += ((-1)**int(self.is_inh)
+                                       * synapse.w * (self.threshold - self.u_rest))
         else:
             self.potential_list.append(u)
-        self._u = u + self.input
+        self._u = u
 
     def _tau_du_dt(self, i):
         return super(ELIF, self)._tau_du_dt(i) + self.delta_t * np.exp((self._u - self.theta_rh) / self.delta_t)
@@ -97,17 +108,19 @@ class AddaptiveELIF(ELIF):
 
     def step(self, t, dt):
         u = self.__new_u(self._current(int(t // dt)), dt)
+        # u += _apply_pre_synaptic(t)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest
             self.spike_times.append(t)
             self.potential_list.append(u)
             for synapse in self.target_synapses:
-                synapse.post.input += ((-1)**int(self.is_inh) * synapse.w * u)
+                synapse.post.input += ((-1)**int(self.is_inh)
+                                       * synapse.w * (self.threshold - self.u_rest))
         else:
             self.potential_list.append(u)
         self.__w = self.__w + self._tau_dw_dt(t) * (dt / self.tau_w)
-        self._u = u + self.input
+        self._u = u
 
     def __new_u(self, current, dt):
         return self._u + self._tau_du_dt(current) * (dt / self.tau)

@@ -38,3 +38,9 @@ class Population:
             for t_f in neuron.spike_times:
                 spike_history.append([i, t_f])
         self.spikes_per_neuron = np.array(spike_history)
+
+
+class InputPopulation(Population):
+    def __init__(self, size, neuron_type, exc_ratio=1, trace_alpha=0.5, **neuron_params):
+        super(InputPopulation, self).__init__(
+            size, neuron_type, exc_ratio, trace_alpha, **neuron_params)
