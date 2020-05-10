@@ -2,12 +2,13 @@ import numpy as np
 
 
 class Synapse:
-    def __init__(self, pre, post, weight, delay=1, **parameters):
+    def __init__(self, pre, post, weight, delay=1, trace_alpha=5, **parameters):
         self.pre = pre
         self.post = post
         self.w = weight
         self.d = delay
         self.parameters = parameters
+        self.trace_alpha = trace_alpha
 
     def _stdp(self, t, t_pre, t_post):
         a_plus = self.parameters["a_plus"]
@@ -33,13 +34,13 @@ class Synapse:
             self.w += (dw_plus + dw_minus)
             return delta_t, dw_plus + dw_minus
 
-    def rstdp_rule(self, t):
+    def rstdp_rule(self, t, dt):
         pass
 
-    def plasticity(self, learning_rule, t):
+    def plasticity(self, learning_rule, t, dt):
         if learning_rule == "stdp":
             return stdp_rule(t)
-        elif learning rule == "rstdp":
-            return rstdp_rule(t)
+        elif learning_rule == "rstdp":
+            return rstdp_rule(t, dt)
         else:
             raise ValueError("INVALID LEARNING RULE")

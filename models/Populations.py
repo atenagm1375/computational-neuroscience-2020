@@ -20,17 +20,33 @@ class Population:
             self.neurons.append(neuron)
         self.size += size
 
-    def step(self, t, dt):
+    def compute_potential(self, t, dt):
+        for neuron in self.neurons:
+            neuron.compute_potential(t, dt)
+
+    def compute_spike(self, t, dt):
         self.activity.append([t, 0])
         for neuron in self.neurons:
-            neuron.step(t, dt)
+            neuron.compute_spike(t, dt)
             if len(neuron.spike_times) > 0 and neuron.spike_times[-1] == t:
                 self.activity[-1][1] += 1
         self.activity[-1][1] /= self.size
 
-    def input_reset(self, t):
+    def apply_pre_synaptic(self, t, dt):
         for neuron in self.neurons:
-            neuron.input_reset(t, self.trace_alpha)
+            neuron.apply_pre_synaptic(t, dt)
+
+    # def step(self, t, dt):
+    #     self.activity.append([t, 0])
+    #     for neuron in self.neurons:
+    #         neuron.step(t, dt)
+    #         if len(neuron.spike_times) > 0 and neuron.spike_times[-1] == t:
+    #             self.activity[-1][1] += 1
+    #     self.activity[-1][1] /= self.size
+
+    def input_reset(self, t, dt):
+        for neuron in self.neurons:
+            neuron.input_reset(t, dt, self.trace_alpha)
 
     def compute_spike_history(self):
         spike_history = []
