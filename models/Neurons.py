@@ -14,12 +14,10 @@ class LIF:
         self._u = self.u_rest
         self.spike_times = []
         self.potential_list = []
-        self.input = 0
+        self.input = {}
         self.is_inh = is_inh
 
         self.target_synapses = []
-        self.time_to_apply = []
-        heapq.heapify(self.time_to_apply)
 
     def _set_inh(self):
         self.is_inh = True
@@ -30,11 +28,8 @@ class LIF:
 
     def apply_pre_synaptic(self, t, dt):
         du = 0
-        if len(self.time_to_apply) > 0 and self.time_to_apply[0] == t:
-            heapq.heappop(self.time_to_apply)
-            # self.time_to_apply.pop(0)
-            du += self.input
-            self.potential_list[-1] += du
+        du = self.input.get(t, 0)
+        self.potential_list[-1] += du
         return du
 
     def _check_spike(self, t, dt):
@@ -46,12 +41,11 @@ class LIF:
             self.spike_times.append(t)
             self.potential_list.append(u)
             for synapse in self.target_synapses:
-                # synapse.post.time_to_apply.append(t + synapse.d)
-                if t + synapse.d * dt not in self.time_to_apply:
-                    heapq.heappush(synapse.post.time_to_apply,
-                                   t + synapse.d * dt)
-                synapse.post.input += (-1)**int(self.is_inh) * \
-                    synapse.w * (self.threshold - self.u_rest)
+                time = t + synapse.d
+                if time not in synapse.post.input.keys():
+                    synapse.post.input[time] = 0
+                synapse.post.input[time] += ((-1)
+                                             ** int(self.is_inh) * synapse.w)
         return u
 
     def compute_spike(self, t, dt):
@@ -62,20 +56,18 @@ class LIF:
         self.potential_list.append(u)
         return u
 
-    # def step(self, t, dt):
-    #     u = self.__new_u(self._current(int(t / dt)), dt)
-    #     # u += _apply_pre_synaptic(t)
-    #     if u >= self.threshold:
-    #         self.potential_list.append(self.threshold)
-    #         u = self.u_rest
-    #         self.spike_times.append(t)
-    #         self.potential_list.append(u)
-    #         for synapse in self.target_synapses:
-    #             synapse.post.input += ((-1)**int(self.is_inh)
-    #                                    * synapse.w * (self.threshold - self.u_rest))
-    #     else:
-    #         self.potential_list.append(u)
-    #     self._u = u
+    def step(self, t, dt):
+        u = self.__new_u(self._current(int(t / dt)), dt)
+        if u >= self.threshold:
+            self.potential_list.append(self.threshold)
+            u = self.u_rest
+            self.spike_times.append(t)
+            self.potential_list.append(u)
+            for synapse in self.target_synapses:
+                synapse.post.input += ((-1)**int(self.is_inh) * synapse.w)
+        else:
+            self.potential_list.append(u)
+        self._u = u
 
     def __du(self, current, dt):
         return self._tau_du_dt(current) * (dt / self.tau)
@@ -87,10 +79,12 @@ class LIF:
         return -(self._u - self.u_rest) + self.r * i
 
     def input_reset(self, t, dt, alpha):
-        # self._u += self.input]
-        self.input -= alpha * self.input
-        if self.input <= 0:
-            self.input = 0
+        val = self.input.get(t, 0)
+        if val != 0:
+            self.input.pop(t)
+            for i in range(1, 6):
+                if i + t in self.input.keys():
+                    self.input[t + i] += np.exp(- val * alpha)
 
 
 class ELIF(LIF):
@@ -100,31 +94,23 @@ class ELIF(LIF):
         self.delta_t = delta_t
         self.theta_rh = theta_rh
 
-    def _apply_pre_synaptic(self, t, dt):
-        du = 0
-        if self.time_to_apply[0] == t:
-            self.time_to_apply.pop(0)
-            du += self.__du(self.input, dt)
-        return du
-
     def compute_potential(self, t, dt):
         u = self.__new_u(self._current(int(t / dt)), dt)
         self.potential_list.append(u)
         return u
 
-    # def step(self, t, dt):
-    #     u = self.__new_u(self._current(int(t // dt)), dt)
-    #     # u += _apply_pre_synaptic(t)
-    #     if u >= self.threshold:
-    #         self.potential_list.append(self.threshold)
-    #         u = self.u_rest
-    #         self.spike_times.append(t)
-    #         self.potential_list.append(u)
-    #         for synapse in self.target_synapses:
-    #             synapse.post.input += (-1)**int(self.is_inh) * synapse.w
-    #     else:
-    #         self.potential_list.append(u)
-    #     self._u = u
+    def step(self, t, dt):
+        u = self.__new_u(self._current(int(t // dt)), dt)
+        if u >= self.threshold:
+            self.potential_list.append(self.threshold)
+            u = self.u_rest
+            self.spike_times.append(t)
+            self.potential_list.append(u)
+            for synapse in self.target_synapses:
+                synapse.post.input += (-1)**int(self.is_inh) * synapse.w
+        else:
+            self.potential_list.append(u)
+        self._u = u
 
     def _tau_du_dt(self, i):
         return super(ELIF, self)._tau_du_dt(i) + self.delta_t * np.exp((self._u - self.theta_rh) / self.delta_t)
@@ -143,22 +129,15 @@ class AddaptiveELIF(ELIF):
         self.a = a
         self.b = b
 
-    def _apply_pre_synaptic(self, t, dt):
-        du = 0
-        if self.time_to_apply[0] == t:
-            self.time_to_apply.pop(0)
-            du += self.__du(self.input, dt)
-        return du
-
     def compute_potential(self, t, dt):
         u = self.__new_u(self._current(int(t / dt)), dt)
         self.potential_list.append(u)
         return u
 
     def compute_spike(self, t, dt):
-        u, du = self._check_spike(t, dt)
+        u = self._check_spike(t, dt)
         self.__w = self.__w + self._tau_dw_dt(t) * (dt / self.tau_w)
-        self._u = u + du
+        self._u = u
 
     def _tau_du_dt(self, i):
         return super(AddaptiveELIF, self)._tau_du_dt(i) - self.r * self.__w
@@ -167,20 +146,19 @@ class AddaptiveELIF(ELIF):
         return self.a * (self._u - self.u_rest) - self.__w + \
             self.b * self.tau_w * np.count_nonzero(self.spike_times == t)
 
-    # def step(self, t, dt):
-    #     u = self.__new_u(self._current(int(t // dt)), dt)
-    #     # u += _apply_pre_synaptic(t)
-    #     if u >= self.threshold:
-    #         self.potential_list.append(self.threshold)
-    #         u = self.u_rest
-    #         self.spike_times.append(t)
-    #         self.potential_list.append(u)
-    #         for synapse in self.target_synapses:
-    #             synapse.post.input += (-1)**int(self.is_inh) * synapse.w
-    #     else:
-    #         self.potential_list.append(u)
-    #     self.__w = self.__w + self._tau_dw_dt(t) * (dt / self.tau_w)
-    #     self._u = u
+    def step(self, t, dt):
+        u = self.__new_u(self._current(int(t // dt)), dt)
+        if u >= self.threshold:
+            self.potential_list.append(self.threshold)
+            u = self.u_rest
+            self.spike_times.append(t)
+            self.potential_list.append(u)
+            for synapse in self.target_synapses:
+                synapse.post.input += (-1)**int(self.is_inh) * synapse.w
+        else:
+            self.potential_list.append(u)
+        self.__w = self.__w + self._tau_dw_dt(t) * (dt / self.tau_w)
+        self._u = u
 
     def __new_u(self, current, dt):
         return self._u + self._tau_du_dt(current) * (dt / self.tau)

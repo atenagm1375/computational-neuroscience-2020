@@ -19,9 +19,9 @@ class Simulate:
             time_interval = np.arange(
                 self.__t, self.__t + time_window, self.dt)
             for t in time_interval:
-                # self.neuron.step(t, self.dt)
-                self.compute_potential(t, self.dt)
-                self.compute_spike(t, self.dt)
+                self.neuron.step(t, self.dt)
+                # self.neuron.compute_potential(t, self.dt)
+                # self.neuron.compute_spike(t, self.dt)
                 current_list.append(self.neuron._current(int(t // self.dt)))
                 time_list.append(t)
                 if len(self.neuron.spike_times) > 0 and self.neuron.spike_times[-1] == t:
@@ -46,7 +46,7 @@ class Simulate:
                 for pop in self.populations:
                     pop.input_reset(t, self.dt)
                 for conn in self.connections:
-                    conn.apply_plasticity(learning_rule, t, self.dt)
+                    conn.update(learning_rule, t, self.dt)
                 current_list.append(pop.neurons[0]._current(int(t // self.dt)))
                 time_list.append(t)
             for pop in self.populations:

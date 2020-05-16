@@ -51,7 +51,7 @@ class Connection:
 
         return self
 
-    def apply_plasticity(self, learning_rule, t, dt):
+    def update(self, learning_rule, t, dt):
         if learning_rule:
             for synapse in self.synapses:
-                synapse.plasticity(learning_rule, t, dt)
+                synapse.update(learning_rule, t, dt)

@@ -131,13 +131,13 @@ def q2_fixed_pre_fixed_pre():
     conn3 = Connection(pop3, pop3).apply(
         "fixed_pre", p=0.01, mu=0.2, sigma=0.1)
     conn4 = Connection(pop1, pop2).apply(
-        "fixed_pre", p=0.01, mu=0.2, sigma=0.1)
+        "fixed_pre", p=0.01, mu=0.95, sigma=0.1)
     conn5 = Connection(pop2, pop3).apply(
-        "fixed_pre", p=0.015, mu=0.2, sigma=0.1)
+        "fixed_pre", p=0.015, mu=0.95, sigma=0.1)
     conn6 = Connection(pop2, pop1).apply(
-        "fixed_pre", p=0.015, mu=0.2, sigma=0.1)
+        "fixed_pre", p=0.015, mu=0.95, sigma=0.1)
     conn7 = Connection(pop3, pop2).apply(
-        "fixed_pre", p=0.01, mu=0.2, sigma=0.1)
+        "fixed_pre", p=0.01, mu=0.95, sigma=0.1)
     conn8 = Connection(pop3, pop1).apply(
         "fixed_prob", p=0.001, mu=0.2, sigma=0.1)
     conn9 = Connection(pop1, pop3).apply(
