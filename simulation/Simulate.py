@@ -35,8 +35,8 @@ class Simulate:
             time_interval = np.arange(
                 self.__t, self.__t + time_window, self.dt)
             for t in time_interval:
-                if t % 10 == 0:
-                    print(t)
+                # if t % 10 == 0:
+                #     print(t)
                 for pop in self.populations:
                     pop.compute_potential(t, self.dt)
                 for pop in self.populations:
@@ -47,6 +47,9 @@ class Simulate:
                     pop.input_reset(t, self.dt)
                 for conn in self.connections:
                     conn.update(learning_rule, t, self.dt)
+                for conn in self.connections:
+                    for syn in conn.synapses:
+                        print(syn.pre.name, "--{}-->".format(syn.w), syn.post.name)
                 current_list.append(pop.neurons[0]._current(int(t // self.dt)))
                 time_list.append(t)
             for pop in self.populations:

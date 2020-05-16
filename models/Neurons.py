@@ -1,9 +1,28 @@
 import numpy as np
 
-import heapq
+from abc import ABC, abstractmethod
 
 
-class LIF:
+class AbstractNeuron(ABC):
+    _instance_count = 1
+    @abstractmethod
+    def compute_spike(self, t, dt):
+        pass
+
+    @abstractmethod
+    def compute_potential(self, t, dt):
+        pass
+
+    @abstractmethod
+    def input_reset(self, t, dt):
+        pass
+
+    @abstractmethod
+    def apply_pre_synaptic(self, t, dt):
+        pass
+
+
+class LIF(AbstractNeuron):
     def __init__(self, tau=10, u_rest=-70, r=5, threshold=-50, is_inh=False, current=[]):
         self.tau = tau
         self.u_rest = u_rest
@@ -18,6 +37,9 @@ class LIF:
         self.is_inh = is_inh
 
         self.target_synapses = []
+
+        self.name = "Neuron{}".format(AbstractNeuron._instance_count)
+        AbstractNeuron._instance_count += 1
 
     def _set_inh(self):
         self.is_inh = True
@@ -94,6 +116,9 @@ class ELIF(LIF):
         self.delta_t = delta_t
         self.theta_rh = theta_rh
 
+        self.name = "Neuron{}".format(AbstractNeuron._instance_count)
+        AbstractNeuron._instance_count += 1
+
     def compute_potential(self, t, dt):
         u = self.__new_u(self._current(int(t / dt)), dt)
         self.potential_list.append(u)
@@ -129,6 +154,9 @@ class AddaptiveELIF(ELIF):
         self.a = a
         self.b = b
 
+        self.name = "Neuron{}".format(AbstractNeuron._instance_count)
+        AbstractNeuron._instance_count += 1
+
     def compute_potential(self, t, dt):
         u = self.__new_u(self._current(int(t / dt)), dt)
         self.potential_list.append(u)
@@ -162,3 +190,56 @@ class AddaptiveELIF(ELIF):
 
     def __new_u(self, current, dt):
         return self._u + self._tau_du_dt(current) * (dt / self.tau)
+
+
+class Input(AbstractNeuron):
+    def __init__(self, interval=1):
+        self.interval = interval
+
+        self.threshold = 1
+        self.u_rest = 0
+        self._u = self.u_rest
+        self.spike_times = []
+        self.target_synapses = []
+        self.input_array = []
+        self.input = []
+        self.potential_list = []
+
+        self.name = "Neuron{}".format(AbstractNeuron._instance_count)
+        AbstractNeuron._instance_count += 1
+
+    def set(self, arr):
+        self.input_array = np.array(arr)
+
+    def compute_potential(self, t, dt):
+        if t in self.input:
+            self.input.remove(t)
+            u = self.threshold
+        else:
+            u = self.u_rest
+        self.potential_list.append(u)
+        return u
+
+    def _check_spike(self, t, dt):
+        u = self.potential_list[-1]
+        if u >= self.threshold:
+            self.potential_list.pop(-1)
+            self.potential_list.append(self.threshold)
+            u = self.u_rest
+            self.spike_times.append(t)
+            self.potential_list.append(u)
+            for synapse in self.target_synapses:
+                time = t + synapse.d
+                if time not in synapse.post.input.keys():
+                    synapse.post.input[time] = 0
+                synapse.post.input[time] += synapse.w
+        return u
+
+    def compute_spike(self, t, dt):
+        self._u = self._check_spike(t, dt)
+
+    def apply_pre_synaptic(self, t, dt):
+        pass
+
+    def input_reset(self, t, dt):
+        pass

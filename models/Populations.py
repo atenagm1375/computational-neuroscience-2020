@@ -1,8 +1,11 @@
+from abc import ABC
 import numpy as np
+
+from models.Neurons import Input
 
 
 class Population:
-    def __init__(self, size, neuron_type, exc_ratio=1, trace_alpha=0.5, **neuron_params):
+    def __init__(self, size, neuron_type, exc_ratio=1, trace_alpha=2, **neuron_params):
         self.size = size
         exc_num = int(exc_ratio * size)
         self.neurons = []
@@ -57,6 +60,35 @@ class Population:
 
 
 class InputPopulation(Population):
-    def __init__(self, size, neuron_type, exc_ratio=1, trace_alpha=0.5, **neuron_params):
+    def __init__(self, size, exc_ratio=1, trace_alpha=2, interval=1):
         super(InputPopulation, self).__init__(
-            size, neuron_type, exc_ratio, trace_alpha, **neuron_params)
+            size, Input, exc_ratio, trace_alpha, interval=interval)
+
+        self.interval = interval
+        self.input = []
+
+    def set_input(self, input):
+        input = np.array(input)
+        if input.shape[1] != self.size:
+            raise ValueError("Wrong input shape.")
+        self.input = input
+        for i, neuron in enumerate(self.neurons):
+            neuron.set(input[:, i])
+
+    def compute_potential(self, t, dt):
+        if t % self.interval == 0:
+            values = np.random.choice(list(range(len(self.input))), 1)[0]
+        for i, neuron in enumerate(self.neurons):
+            if t % self.interval == 0 and self.input[values][i] != 0:
+                neuron.input.append(t + self.input[values][i])
+            neuron.compute_potential(t, dt)
+
+    def compute_spike(self, t, dt):
+        for neuron in self.neurons:
+            neuron.compute_spike(t, dt)
+
+    def apply_pre_synaptic(self, t, dt):
+        pass
+
+    def input_reset(self, t, dt):
+        pass

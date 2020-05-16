@@ -44,3 +44,6 @@ class Synapse:
             return self.rstdp_rule(t, dt)
         else:
             raise ValueError("INVALID LEARNING RULE")
+
+    def __repr__(self):
+        return self.w
