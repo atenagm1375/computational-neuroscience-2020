@@ -1,6 +1,7 @@
 import numpy as np
 
 from abc import ABC, abstractmethod
+from copy import deepcopy
 
 
 class AbstractNeuron(ABC):
@@ -28,7 +29,7 @@ class LIF(AbstractNeuron):
         self.u_rest = u_rest
         self.r = r
         self.threshold = threshold
-        self.current_list = current
+        self.current_list = deepcopy(current)
 
         self._u = self.u_rest
         self.spike_times = []
@@ -50,7 +51,7 @@ class LIF(AbstractNeuron):
 
     def apply_pre_synaptic(self, t, dt):
         du = 0
-        du = self.input.get(t, 0)
+        du = self.input.get(t, 0) * self.r * dt / self.tau
         self.potential_list[-1] += du
         return du
 
@@ -63,7 +64,7 @@ class LIF(AbstractNeuron):
             self.spike_times.append(t)
             self.potential_list.append(u)
             for synapse in self.target_synapses:
-                time = t + synapse.d
+                time = t + synapse.d + dt
                 if time not in synapse.post.input.keys():
                     synapse.post.input[time] = 0
                 synapse.post.input[time] += ((-1)
@@ -106,7 +107,7 @@ class LIF(AbstractNeuron):
             self.input.pop(t)
             for i in range(1, 6):
                 if i + t in self.input.keys():
-                    self.input[t + i] += np.exp(- val * alpha)
+                    self.input[t + i] += (val * alpha)
 
 
 class ELIF(LIF):

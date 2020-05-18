@@ -11,6 +11,15 @@ class Connection:
         self.post = post
         self.synapses = []
 
+    def add(self, pre_indices, post_indices, mu=0.5, sigma=0.01, **kwargs):
+        for i in pre_indices:
+            for j in post_indices:
+                syn = Synapse(self.pre.neurons[i], self.post.neurons[j],
+                              np.random.normal(mu, sigma), **kwargs)
+                self.synapses.append(syn)
+                self.pre.neurons[i].target_synapses.append(syn)
+        return self
+
     def apply(self, connection_type, mu=0.5, sigma=0.01, **kwargs):
         if connection_type == "full":
             for neuron_pre in self.pre.neurons:

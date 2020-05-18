@@ -36,10 +36,10 @@ input_params = {
 }
 
 stdp_params = {
-    "a_plus": lambda x: 0.8,
-    "a_minus": lambda x: -0.3,
-    "tau_plus": 8,
-    "tau_minus": 12
+    "a_plus": lambda x: 0.5 * (5 - x),
+    "a_minus": lambda x: 0.5 * (-1.5 - x),
+    "tau_plus": 5,
+    "tau_minus": 5
 }
 
 input_pop = InputPopulation2(10, LIF, **input_params)
@@ -53,6 +53,18 @@ inputs = [
 input_pop.encode(inputs, duration, 5)
 conn = Connection(input_pop, output_pop).apply(
     "full", mu=1.75, sigma=0.15, **stdp_params)
+
+inh_params = {
+    "tau": 10,
+    "r": 5,
+    "threshold": -60,
+    "is_inh": True,
+    "current": current_generator(duration, dt, 0.5, 9)
+}
+output_pop.add(1, LIF, **inh_params)
+conn.add(list(range(input_pop.size)),
+         [-1], mu=0.8, sigma=0.1, d=0, **stdp_params)
+conn.add([-1], [0, 1], mu=0.8, sigma=0.1, d=0, **stdp_params)
 
 weight_matrix = np.zeros((input_pop.size, output_pop.size))
 for syn in conn.synapses:

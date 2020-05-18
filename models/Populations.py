@@ -18,9 +18,9 @@ class Population:
         self.trace_alpha = trace_alpha
         self.activity = []
 
-    def add(self, size, neuron):
+    def add(self, size, neuron_type, **neuron_params):
         for i in range(size):
-            self.neurons.append(neuron)
+            self.neurons.append(neuron_type(**neuron_params))
         self.size += size
 
     def compute_potential(self, t, dt):
@@ -92,3 +92,23 @@ class InputPopulation(Population):
 
     def input_reset(self, t, dt):
         pass
+
+
+class InputPopulation2(Population):
+    def __init__(self, size, neuron_type, exc_ratio=1, **neuron_params):
+        super(InputPopulation2, self).__init__(
+            size, neuron_type, exc_ratio, trace_alpha=0, **neuron_params)
+
+        self.input = []
+
+    def encode(self, input, duration, interval):
+        input = np.array(input)
+        if input.shape[1] != self.size:
+            raise ValueError("Wrong input shape.")
+        self.input = input
+        for t in np.arange(0, duration, interval):
+            ind = np.random.choice(list(range(len(self.input))), 1)[0]
+            if t + np.max(self.input[ind]) <= duration:
+                for i, val in enumerate(self.input[ind]):
+                    if val > 0:
+                        self.neurons[i].current_list[t + val] += 1

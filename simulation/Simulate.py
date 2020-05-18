@@ -47,9 +47,9 @@ class Simulate:
                     pop.input_reset(t, self.dt)
                 for conn in self.connections:
                     conn.update(learning_rule, t, self.dt)
-                for conn in self.connections:
-                    for syn in conn.synapses:
-                        print(syn.pre.name, "--{}-->".format(syn.w), syn.post.name)
+                # for conn in self.connections:
+                #     for syn in conn.synapses:
+                #         print(syn.pre.name, "--{}-->".format(syn.w), syn.post.name)
                 current_list.append(pop.neurons[0]._current(int(t // self.dt)))
                 time_list.append(t)
             for pop in self.populations:
