@@ -6,12 +6,12 @@ from simulation.Simulate import Simulate
 from simulation.Monitors import raster_plot
 
 
-def current_generator(duration, dt, val, begin=5, end=5):
+def current_generator(duration, dt, val, begin=5):
     current_list = []
     for i in np.arange(0, duration, dt):
         if i < begin:
             current_list.append(0)
-        elif i < duration - end:
+        elif i < duration / 2:
             current_list.append(val)
         else:
             current_list.append(0)
@@ -36,10 +36,10 @@ input_params = {
 }
 
 stdp_params = {
-    "a_plus": lambda x: 0.5 * (5 - x),
-    "a_minus": lambda x: 0.5 * (-1.5 - x),
-    "tau_plus": 5,
-    "tau_minus": 5
+    "a_plus": lambda x: 1 * (40 - x),
+    "a_minus": lambda x: 1 * (-40 - x),
+    "tau_plus": 1,
+    "tau_minus": 1
 }
 
 input_pop = InputPopulation2(10, LIF, **input_params)
@@ -50,7 +50,7 @@ inputs = [
     [1, 2, 2, 2, 1, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 3, 1, 2, 1, 1]
 ]
-input_pop.encode(inputs, duration, 5)
+input_pop.encode(inputs, duration, 6)
 conn = Connection(input_pop, output_pop).apply(
     "full", mu=1.75, sigma=0.15, **stdp_params)
 
@@ -59,11 +59,11 @@ inh_params = {
     "r": 5,
     "threshold": -60,
     "is_inh": True,
-    "current": current_generator(duration, dt, 0.5, 9)
+    "current": current_generator(duration, dt, 0.75, 9)
 }
 output_pop.add(1, LIF, **inh_params)
 conn.add(list(range(input_pop.size)),
-         [-1], mu=0.8, sigma=0.1, d=0, **stdp_params)
+         [-1], mu=1.25, sigma=0.1, d=0, **stdp_params)
 conn.add([-1], [0, 1], mu=0.8, sigma=0.1, d=0, **stdp_params)
 
 weight_matrix = np.zeros((input_pop.size, output_pop.size))

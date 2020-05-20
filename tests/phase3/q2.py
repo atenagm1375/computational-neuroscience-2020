@@ -11,7 +11,7 @@ def current_generator(duration, dt, val, begin=5, end=5):
     for i in np.arange(0, duration, dt):
         if i < begin:
             current_list.append(0)
-        elif i < duration - end:
+        elif i < duration / 8:
             current_list.append(val)
         else:
             current_list.append(0)
@@ -36,10 +36,10 @@ input_params = {
 }
 
 stdp_params = {
-    "a_plus": lambda x: 0.8,
-    "a_minus": lambda x: -0.3,
-    "tau_plus": 8,
-    "tau_minus": 12
+    "a_plus": lambda x: 1 * (40 - x),
+    "a_minus": lambda x: 1 * (-40 - x),
+    "tau_plus": 1,
+    "tau_minus": 1
 }
 
 input_pop = InputPopulation2(10, LIF, **input_params)
