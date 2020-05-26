@@ -10,40 +10,54 @@ class Synapse:
         self.parameters = parameters
         self.trace_alpha = trace_alpha
 
+        self.a_plus = parameters.get("a_plus", lambda x: 0)
+        self.a_minus = parameters.get("a_minus", lambda x: 0)
+        self.tau_plus = parameters.get("tau_plus", 0)
+        self.tau_minus = parameters.get("tau_minus", 0)
+
+        self.c = parameters.get("c", 0)
+        self.d = parameters.get("d", 0)
+        self.tau_c = parameters.get("tau_c", 0)
+        self.tau_d = parameters.get("tau_d", 0)
+        self.da = parameters.get("da", lambda x: 0)
+
     def _stdp(self, t, t_pre, t_post):
-        a_plus = self.parameters["a_plus"]
-        a_minus = self.parameters["a_minus"]
-        tau_plus = self.parameters["tau_plus"]
-        tau_minus = self.parameters["tau_minus"]
         delta_t = t_post - t_pre
         dw = 0
         if delta_t >= 0:
-            dw = a_plus(self.w) * np.exp(-np.fabs(delta_t) / tau_plus)
+            dw = self.a_plus(self.w) * \
+                np.exp(-np.fabs(delta_t) / self.tau_plus)
         else:
-            dw = a_minus(self.w) * np.exp(-np.fabs(delta_t) / tau_minus)
+            dw = self.a_minus(self.w) * \
+                np.exp(-np.fabs(delta_t) / self.tau_minus)
         return delta_t, dw
 
-    def stdp_rule(self, t):
+    def _rstdp(self, t, dt, t_pre, t_post):
+        delta_t, stdp = self._stdp(t, t_pre, t_post)
+        dc = (-self.c / self.tau_c + stdp) * dt
+        dd = (-self.d / self.tau_d + self.da(t)) * dt
+        self.c += dc
+        self.d += dd
+        dw = self.c * self.d * dt
+        return delta_t, dw
+
+    def update(self, learning_rule, t, dt):
         t_pre, t_post = -1, -1
         if self.pre.spike_times:
             t_pre = self.pre.spike_times[-1]
         if self.post.spike_times:
             t_post = self.post.spike_times[-1]
         if t_post >= 0 and t_pre >= 0:
-            delta_t, dw = self._stdp(t, t_pre, t_post)
-            self.w += dw
-            return delta_t, dw
-
-    def rstdp_rule(self, t, dt):
-        pass
-
-    def update(self, learning_rule, t, dt):
-        if learning_rule == "stdp":
-            return self.stdp_rule(t)
-        elif learning_rule == "rstdp":
-            return self.rstdp_rule(t, dt)
-        else:
-            raise ValueError("INVALID LEARNING RULE")
+            if learning_rule == "stdp":
+                delta_t, dw = self._stdp(t, t_pre, t_post)
+                self.w += dw
+                return delta_t, dw
+            elif learning_rule == "rstdp":
+                delta_t, dw = self._rstdp(t, dt, t_pre, t_post)
+                self.w += dw
+                return delta_t, dw
+            else:
+                raise ValueError("INVALID LEARNING RULE")
 
     def __repr__(self):
         return self.w
