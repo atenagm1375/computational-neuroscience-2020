@@ -43,12 +43,12 @@ for i in np.arange(-1 * duration, duration, 0.5):
         src.compute_potential(t, dt)
         src.apply_pre_synaptic(t, dt)
         src.compute_spike(t, dt)
-        src.input_reset(t, dt, 0.5)
+        src.reset(t, dt, 0.5)
 
         dest.compute_potential(t, dt)
         dest.apply_pre_synaptic(t, dt)
         dest.compute_spike(t, dt)
-        dest.input_reset(t, dt, 0.5)
+        dest.reset(t, dt, 0.5)
 
         if len(src.spike_times) > 0 and len(dest.spike_times) > 0:
             delta_t, delta_w = syn.update("stdp", t, dt)

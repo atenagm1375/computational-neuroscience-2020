@@ -44,7 +44,7 @@ class Simulate:
                 for pop in self.populations:
                     pop.compute_spike(t, self.dt)
                 for pop in self.populations:
-                    pop.input_reset(t, self.dt)
+                    pop.reset(t, self.dt)
                 for conn in self.connections:
                     conn.update(learning_rule, t, self.dt)
                 # for conn in self.connections:

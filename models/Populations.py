@@ -7,12 +7,11 @@ from models.Neurons import Input
 class Population:
     def __init__(self, size, neuron_type, exc_ratio=1, trace_alpha=2, **neuron_params):
         self.size = size
-        exc_num = int(exc_ratio * size)
         self.neurons = []
-        exc_num = int(exc_ratio * size)
-        for i in range(exc_num):
+        self.exc_num = int(exc_ratio * size)
+        for i in range(self.exc_num):
             self.neurons.append(neuron_type(**neuron_params))
-        for i in range(self.size - exc_num):
+        for i in range(self.size - self.exc_num):
             self.neurons.append(neuron_type(**neuron_params)._set_inh())
         self.spikes_per_neuron = []
         self.trace_alpha = trace_alpha
@@ -22,6 +21,39 @@ class Population:
         for i in range(size):
             self.neurons.append(neuron_type(**neuron_params))
         self.size += size
+
+    def choose_input_output(self, input_size, output_size):
+        distinct_choices = np.random.choice(list(range(self.exc_num)),
+                                            np.prod(input_size) +
+                                            np.prod(output_size),
+                                            replace=False)
+        input_indices = []
+        for i in range(input_size[0]):
+            ins = np.random.choice(
+                distinct_choices, input_size[1], replace=False)
+            input_indices.append(ins)
+            distinct_choices = list(set(distinct_choices) - set(ins))
+
+        output_indices = []
+        for i in range(output_size[0]):
+            ins = np.random.choice(
+                distinct_choices, output_size[1], replace=False)
+            output_indices.append(ins)
+            distinct_choices = list(set(distinct_choices) - set(ins))
+        return input_indices, output_indices
+
+    def encode(self, input, indices, duration, interval):
+        input = np.array(input)
+        if input.shape[1] != indices.shape[1]:
+            raise ValueError("Wrong input shape.")
+        for t in np.arange(0, duration, interval):
+            ind = np.random.choice(list(range(len(input))), 1)[0]
+            if t + np.max(input[ind]) <= duration:
+                for i, val in enumerate(input[ind]):
+                    if val > 0:
+                        neuron = self.neurons[indices[i]]
+                        diff = (neuron.threshold - neuron.u_rest) / neuron.r
+                        neuron.current_list[t + val] += diff
 
     def compute_potential(self, t, dt):
         for neuron in self.neurons:
@@ -47,9 +79,9 @@ class Population:
     #             self.activity[-1][1] += 1
     #     self.activity[-1][1] /= self.size
 
-    def input_reset(self, t, dt):
+    def reset(self, t, dt):
         for neuron in self.neurons:
-            neuron.input_reset(t, dt, self.trace_alpha)
+            neuron.reset(t, dt, self.trace_alpha)
 
     def compute_spike_history(self):
         spike_history = []
@@ -90,7 +122,7 @@ class InputPopulation(Population):
     def apply_pre_synaptic(self, t, dt):
         pass
 
-    def input_reset(self, t, dt):
+    def reset(self, t, dt):
         pass
 
 

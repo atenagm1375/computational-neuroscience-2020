@@ -15,7 +15,7 @@ class AbstractNeuron(ABC):
         pass
 
     @abstractmethod
-    def input_reset(self, t, dt):
+    def reset(self, t, dt):
         pass
 
     @abstractmethod
@@ -101,7 +101,7 @@ class LIF(AbstractNeuron):
     def _tau_du_dt(self, i):
         return -(self._u - self.u_rest) + self.r * i
 
-    def input_reset(self, t, dt, alpha):
+    def reset(self, t, dt, alpha):
         val = self.input.get(t, 0)
         if val != 0:
             self.input.pop(t)
@@ -242,5 +242,5 @@ class Input(AbstractNeuron):
     def apply_pre_synaptic(self, t, dt):
         pass
 
-    def input_reset(self, t, dt):
+    def reset(self, t, dt):
         pass
