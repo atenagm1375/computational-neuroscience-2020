@@ -16,6 +16,7 @@ class Population:
         self.spikes_per_neuron = []
         self.trace_alpha = trace_alpha
         self.activity = []
+        self.input_seq = []
 
     def add(self, size, neuron_type, **neuron_params):
         for i in range(size):
@@ -48,6 +49,7 @@ class Population:
             raise ValueError("Wrong input shape.")
         for t in np.arange(0, duration, interval):
             ind = np.random.choice(list(range(len(input_pattern))), 1)[0]
+            self.input_seq.append(ind)
             if t + np.max(input_pattern[ind]) <= duration:
                 for i, val in enumerate(input_pattern[ind]):
                     if val > 0:

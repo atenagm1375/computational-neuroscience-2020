@@ -13,11 +13,18 @@ class Network:
         self.connections = connections
 
         self.d = 0
-        self.da = None
+        self.func_da = None
 
     def set_dopamine(self, d, da):
         self.d = d
-        self.da = da
+        self.func_da = da
+
+    def da(self, t):
+        if len(self.populations) > 1:
+            src = self.populations[0]
+            dest = self.populations[-1]
+            return self.func_da(src.input_seq, dest.neurons, t)
+        # TODO add functionality for single population
 
     def run(self, time_window, learning_rule=None):
         if self.neuron:

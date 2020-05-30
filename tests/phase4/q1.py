@@ -18,8 +18,16 @@ def current_generator(duration, dt, val, begin=5, ratio=8):
     return current_list
 
 
-def func_da(t):
-    pass
+def func_da(src_seq, dest_neurons, t):
+    if len(src_seq) > 0:
+        for i in range(len(dest_neurons)):
+            if dest_neurons[i].spike_times[-1] == t and src_seq[0] == i:
+                src_seq.pop(0)
+                return 10
+            if dest_neurons[i].spike_times[-1] == t and src_seq[0] != i:
+                src_seq.pop(0)
+                return -10
+    return 0
 
 
 duration = 10000
@@ -29,15 +37,15 @@ neuron_params = {
     "tau": 10,
     "r": 2,
     "threshold": -55,
-    "current": current_generator(duration, dt, 2, 5, 10)
+    "current": current_generator(duration, dt, 2, 5, 100)
 }
 
 rstdp_params = {
-    "a_plus": 10,
-    "a_minus": -10,
+    "a_plus": lambda x: (80 - x),
+    "a_minus": lambda x: (-80 - x),
     "tau_plus": 6,
     "tau_minus": 6,
-    "c": 2,
+    "c": 10,
     "tau_c": 100,
     "tau_d": 10
 }
@@ -61,7 +69,7 @@ for syn in conn.synapses:
 print(weight_matrix)
 
 net = Network(populations=[src, dest], connections=[conn], time_step=dt)
-net.set_dopamine(2, func_da)
+net.set_dopamine(10, func_da)
 net.run(duration, learning_rule="rstdp")
 
 for syn in conn.synapses:
