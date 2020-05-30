@@ -15,7 +15,7 @@ class AbstractNeuron(ABC):
         pass
 
     @abstractmethod
-    def reset(self, t, dt):
+    def reset(self, t, dt, alpha):
         pass
 
     @abstractmethod
@@ -67,8 +67,7 @@ class LIF(AbstractNeuron):
                 time = t + synapse.d + dt
                 if time not in synapse.post.input.keys():
                     synapse.post.input[time] = 0
-                synapse.post.input[time] += ((-1)
-                                             ** int(self.is_inh) * synapse.w)
+                synapse.post.input[time] += ((-1) ** int(self.is_inh) * synapse.w)
         return u
 
     def compute_spike(self, t, dt):
@@ -242,5 +241,5 @@ class Input(AbstractNeuron):
     def apply_pre_synaptic(self, t, dt):
         pass
 
-    def reset(self, t, dt):
+    def reset(self, t, dt, alpha):
         pass

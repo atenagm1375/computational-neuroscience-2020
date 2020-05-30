@@ -55,7 +55,7 @@ class Connection:
 
         return self
 
-    def update(self, learning_rule, t, dt):
+    def update(self, learning_rule, t, dt, d, da):
         if learning_rule:
             for synapse in self.synapses:
-                synapse.update(learning_rule, t, dt)
+                synapse.update(learning_rule, t, dt, d, da)

@@ -16,10 +16,8 @@ class Synapse:
         self.tau_minus = parameters.get("tau_minus", 0)
 
         self.c = parameters.get("c", 0)
-        self.d = parameters.get("d", 0)
         self.tau_c = parameters.get("tau_c", 0)
         self.tau_d = parameters.get("tau_d", 0)
-        self.da = parameters.get("da", lambda x: 0)
 
     def _stdp(self, t, t_pre, t_post):
         delta_t = t_post - t_pre
@@ -32,16 +30,16 @@ class Synapse:
                 np.exp(-np.fabs(delta_t) / self.tau_minus)
         return delta_t, dw
 
-    def _rstdp(self, t, dt, t_pre, t_post):
+    def _rstdp(self, t, dt, t_pre, t_post, d, da):
         delta_t, stdp = self._stdp(t, t_pre, t_post)
         dc = (-self.c / self.tau_c + stdp) * dt
-        dd = (-self.d / self.tau_d + self.da(t)) * dt
+        dd = (-d / self.tau_d + da(t)) * dt
         self.c += dc
-        self.d += dd
-        dw = self.c * self.d * dt
+        d += dd
+        dw = self.c * d * dt
         return delta_t, dw
 
-    def update(self, learning_rule, t, dt):
+    def update(self, learning_rule, t, dt, d, da):
         t_pre, t_post = -1, -1
         if self.pre.spike_times:
             t_pre = self.pre.spike_times[-1]
@@ -53,7 +51,7 @@ class Synapse:
                 self.w += dw
                 return delta_t, dw
             elif learning_rule == "rstdp":
-                delta_t, dw = self._rstdp(t, dt, t_pre, t_post)
+                delta_t, dw = self._rstdp(t, dt, t_pre, t_post, d, da)
                 self.w += dw
                 return delta_t, dw
             else:

@@ -2,7 +2,7 @@ from models.Neurons import *
 from models.Synapses import Synapse
 from models.Connections import Connection
 from models.Populations import Population
-from simulation.Simulate import Simulate
+from simulation.Simulate import Network
 from simulation.Monitors import raster_plot, decision_plot
 
 import numpy as np
@@ -48,7 +48,7 @@ def q1_fixed_pre():
     }
     pop = Population(1000, LIF, exc_ratio=0.8, **neuron_params)
     conn = Connection(pop, pop).apply("fixed_pre", p=0.01, mu=0.2, sigma=0.1)
-    sim = Simulate(populations=[pop], connections=[conn], time_step=dt)
+    sim = Network(populations=[pop], connections=[conn], time_step=dt)
     sim.run(duration)
     print(pop.spikes_per_neuron.shape)
     colors = ['inh' if pop.neurons[int(p[0])].is_inh
@@ -68,7 +68,7 @@ def q1_fixed_prob():
     pop = Population(1000, LIF, exc_ratio=0.8, **neuron_params)
     conn = Connection(pop, pop).apply(
         "fixed_prob", p=0.002, mu=0.2, sigma=0.1)
-    sim = Simulate(populations=[pop], connections=[conn], time_step=dt)
+    sim = Network(populations=[pop], connections=[conn], time_step=dt)
     sim.run(duration)
     print(pop.spikes_per_neuron.shape)
     colors = ['inh' if pop.neurons[int(p[0])].is_inh
@@ -87,7 +87,7 @@ def q1_full():
     }
     pop = Population(1000, LIF, exc_ratio=0.8, **neuron_params)
     conn = Connection(pop, pop).apply("full", mu=0.2, sigma=0.1)
-    sim = Simulate(populations=[pop], connections=[conn], time_step=dt)
+    sim = Network(populations=[pop], connections=[conn], time_step=dt)
     sim.run(duration)
     print(pop.spikes_per_neuron.shape)
     colors = ['inh' if pop.neurons[int(p[0])].is_inh
@@ -143,7 +143,7 @@ def q2_fixed_pre_fixed_pre():
     conn9 = Connection(pop1, pop3).apply(
         "fixed_prob", p=0.001, mu=0.2, sigma=0.1)
 
-    sim = Simulate(populations=[pop1, pop2, pop3], connections=[
+    sim = Network(populations=[pop1, pop2, pop3], connections=[
                    conn1, conn2, conn3, conn4, conn5, conn6, conn7, conn8, conn9],
                    time_step=dt)
     sim.run(duration)
@@ -201,7 +201,7 @@ def q2_full_fixed_pre():
     conn9 = Connection(pop1, pop3).apply(
         "fixed_prob", p=0.001, mu=0.2, sigma=0.1)
 
-    sim = Simulate(populations=[pop1, pop2, pop3], connections=[
+    sim = Network(populations=[pop1, pop2, pop3], connections=[
                    conn1, conn2, conn3, conn4, conn5, conn6, conn7, conn8, conn9],
                    time_step=dt)
     sim.run(duration)
@@ -257,7 +257,7 @@ def q2_full_full():
     conn9 = Connection(pop1, pop3).apply(
         "fixed_prob", p=0.001, mu=0.2, sigma=0.1)
 
-    sim = Simulate(populations=[pop1, pop2, pop3], connections=[
+    sim = Network(populations=[pop1, pop2, pop3], connections=[
                    conn1, conn2, conn3, conn4, conn5, conn6, conn7, conn8, conn9],
                    time_step=dt)
     sim.run(duration)
@@ -313,7 +313,7 @@ def q2_fixed_pre_full():
     conn9 = Connection(pop1, pop3).apply(
         "fixed_prob", p=0.01, mu=0.2, sigma=0.1)
 
-    sim = Simulate(populations=[pop1, pop2, pop3], connections=[
+    sim = Network(populations=[pop1, pop2, pop3], connections=[
                    conn1, conn2, conn3, conn4, conn5, conn6, conn7, conn8, conn9],
                    time_step=dt)
     sim.run(duration)
@@ -373,7 +373,7 @@ def q2_fixed_prob_fixed_prob():
     conn9 = Connection(pop1, pop3).apply(
         "fixed_prob", p=0.001, mu=0.2, sigma=0.1)
 
-    sim = Simulate(populations=[pop1, pop2, pop3], connections=[
+    sim = Network(populations=[pop1, pop2, pop3], connections=[
                    conn1, conn2, conn3, conn4, conn5, conn6, conn7, conn8, conn9],
                    time_step=dt)
     sim.run(duration)
@@ -434,7 +434,7 @@ def q2_fixed_pre_fixed_prob():
     conn9 = Connection(pop1, pop3).apply(
         "fixed_prob", p=0.001, mu=0.2, sigma=0.1)
 
-    sim = Simulate(populations=[pop1, pop2, pop3], connections=[
+    sim = Network(populations=[pop1, pop2, pop3], connections=[
                    conn1, conn2, conn3, conn4, conn5, conn6, conn7, conn8, conn9],
                    time_step=dt)
     sim.run(duration)
@@ -495,7 +495,7 @@ def q2_fixed_prob_fixed_pre():
     conn9 = Connection(pop1, pop3).apply(
         "fixed_prob", p=0.001, mu=0.2, sigma=0.1)
 
-    sim = Simulate(populations=[pop1, pop2, pop3], connections=[
+    sim = Network(populations=[pop1, pop2, pop3], connections=[
                    conn1, conn2, conn3, conn4, conn5, conn6, conn7, conn8, conn9],
                    time_step=dt)
     sim.run(duration)

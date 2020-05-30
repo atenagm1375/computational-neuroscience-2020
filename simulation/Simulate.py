@@ -3,7 +3,7 @@ import models
 import numpy as np
 
 
-class Simulate:
+class Network:
     def __init__(self, neuron=None, synapse=None, populations=None, connections=None, time_step=1):
         self.dt = time_step
         self.__t = 0
@@ -11,6 +11,13 @@ class Simulate:
         self.synapse = synapse
         self.populations = populations
         self.connections = connections
+
+        self.d = 0
+        self.da = None
+
+    def set_dopamine(self, d, da):
+        self.d = d
+        self.da = da
 
     def run(self, time_window, learning_rule=None):
         if self.neuron:
@@ -46,7 +53,8 @@ class Simulate:
                 for pop in self.populations:
                     pop.reset(t, self.dt)
                 for conn in self.connections:
-                    conn.update(learning_rule, t, self.dt)
+                    if learning_rule != "rstdp":
+                        conn.update(learning_rule, t, self.dt, self.d, self.da)
                 # for conn in self.connections:
                 #     for syn in conn.synapses:
                 #         print(syn.pre.name, "--{}-->".format(syn.w), syn.post.name)

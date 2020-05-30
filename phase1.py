@@ -1,6 +1,6 @@
 from models.Neurons import LIF, ELIF, AddaptiveELIF
 from simulation.Monitors import plot_f_i_curve, plot_firing_pattern
-from simulation.Simulate import Simulate
+from simulation.Simulate import Network
 import numpy as np
 
 import pickle
@@ -29,7 +29,7 @@ def constant_current_test(Neuron, current_values, time_window, dt, **neuron_para
         plot_name = f"./tests/phase1/{neuron_params}_{time_window}_{current_value}.png"
         lif = Neuron(current=current_generator(
             time_window, dt, current_value), **neuron_params)
-        simulate = Simulate(lif, dt)
+        simulate = Network(lif, dt)
         current_list, time_list = simulate.run(time_window)
         firing_patterns.append(lif.spike_times)
         plot_firing_pattern(lif.potential_list, current_list,
@@ -42,7 +42,7 @@ def random_current_test(Neuron, current_range, time_window, dt, **neuron_params)
     plot_name = f"./tests/phase1/{neuron_params}_{time_window}_randomCurrent.png"
     lif = Neuron(current=current_generator(
         time_window, dt, current_range), **neuron_params)
-    simulate = Simulate(lif, dt)
+    simulate = Network(lif, dt)
     current_list, time_list = simulate.run(time_window)
     plot_firing_pattern(lif.potential_list, current_list,
                         time_list, lif.u_rest, lif.threshold, save_to=plot_name)

@@ -2,7 +2,7 @@ from models.Neurons import LIF
 from models.Populations import *
 from models.Synapses import Synapse
 from models.Connections import Connection
-from simulation.Simulate import Simulate
+from simulation.Simulate import Network
 from simulation.Monitors import raster_plot
 
 
@@ -72,7 +72,7 @@ for syn in conn.synapses:
         syn.pre), output_pop.neurons.index(syn.post)] = syn.w
 print(weight_matrix)
 
-sim = Simulate(populations=[input_pop, output_pop],
+sim = Network(populations=[input_pop, output_pop],
                connections=[conn], time_step=dt)
 sim.run(duration, learning_rule="stdp")
 
