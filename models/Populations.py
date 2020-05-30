@@ -42,18 +42,18 @@ class Population:
             distinct_choices = list(set(distinct_choices) - set(ins))
         return input_indices, output_indices
 
-    def encode(self, input, indices, duration, interval):
-        input = np.array(input)
-        if input.shape[1] != indices.shape[1]:
+    def encode_input(self, input_pattern, indices, duration, interval):
+        input_pattern = np.array(input_pattern)
+        if input_pattern.shape[1] != indices.shape[1]:
             raise ValueError("Wrong input shape.")
         for t in np.arange(0, duration, interval):
-            ind = np.random.choice(list(range(len(input))), 1)[0]
-            if t + np.max(input[ind]) <= duration:
-                for i, val in enumerate(input[ind]):
+            ind = np.random.choice(list(range(len(input_pattern))), 1)[0]
+            if t + np.max(input_pattern[ind]) <= duration:
+                for i, val in enumerate(input_pattern[ind]):
                     if val > 0:
                         neuron = self.neurons[indices[i]]
                         diff = (neuron.threshold - neuron.u_rest) / neuron.r
-                        neuron.current_list[t + val] += diff
+                        neuron.current_list[t + val] += (diff * neuron.tau)
 
     def compute_potential(self, t, dt):
         for neuron in self.neurons:
@@ -91,39 +91,39 @@ class Population:
         self.spikes_per_neuron = np.array(spike_history)
 
 
-class InputPopulation(Population):
-    def __init__(self, size, exc_ratio=1, trace_alpha=2, interval=1):
-        super(InputPopulation, self).__init__(
-            size, Input, exc_ratio, trace_alpha, interval=interval)
-
-        self.interval = interval
-        self.input = []
-
-    def set_input(self, input):
-        input = np.array(input)
-        if input.shape[1] != self.size:
-            raise ValueError("Wrong input shape.")
-        self.input = input
-        for i, neuron in enumerate(self.neurons):
-            neuron.set(input[:, i])
-
-    def compute_potential(self, t, dt):
-        if t % self.interval == 0:
-            values = np.random.choice(list(range(len(self.input))), 1)[0]
-        for i, neuron in enumerate(self.neurons):
-            if t % self.interval == 0 and self.input[values][i] != 0:
-                neuron.input.append(t + self.input[values][i])
-            neuron.compute_potential(t, dt)
-
-    def compute_spike(self, t, dt):
-        for neuron in self.neurons:
-            neuron.compute_spike(t, dt)
-
-    def apply_pre_synaptic(self, t, dt):
-        pass
-
-    def reset(self, t, dt):
-        pass
+# class InputPopulation(Population):
+#     def __init__(self, size, exc_ratio=1, trace_alpha=2, interval=1):
+#         super(InputPopulation, self).__init__(
+#             size, Input, exc_ratio, trace_alpha, interval=interval)
+#
+#         self.interval = interval
+#         self.input = []
+#
+#     def set_input(self, input):
+#         input = np.array(input)
+#         if input.shape[1] != self.size:
+#             raise ValueError("Wrong input shape.")
+#         self.input = input
+#         for i, neuron in enumerate(self.neurons):
+#             neuron.set(input[:, i])
+#
+#     def compute_potential(self, t, dt):
+#         if t % self.interval == 0:
+#             values = np.random.choice(list(range(len(self.input))), 1)[0]
+#         for i, neuron in enumerate(self.neurons):
+#             if t % self.interval == 0 and self.input[values][i] != 0:
+#                 neuron.input.append(t + self.input[values][i])
+#             neuron.compute_potential(t, dt)
+#
+#     def compute_spike(self, t, dt):
+#         for neuron in self.neurons:
+#             neuron.compute_spike(t, dt)
+#
+#     def apply_pre_synaptic(self, t, dt):
+#         pass
+#
+#     def reset(self, t, dt):
+#         pass
 
 
 class InputPopulation2(Population):
@@ -131,16 +131,18 @@ class InputPopulation2(Population):
         super(InputPopulation2, self).__init__(
             size, neuron_type, exc_ratio, trace_alpha=0, **neuron_params)
 
-        self.input = []
+        # self.input = []
 
-    def encode(self, input, duration, interval):
-        input = np.array(input)
-        if input.shape[1] != self.size:
+    def encode(self, input_pattern, duration, interval):
+        input_pattern = np.array(input_pattern)
+        if input_pattern.shape[1] != self.size:
             raise ValueError("Wrong input shape.")
-        self.input = input
+        # self.input = input_pattern
         for t in np.arange(0, duration, interval):
-            ind = np.random.choice(list(range(len(self.input))), 1)[0]
-            if t + np.max(self.input[ind]) <= duration:
-                for i, val in enumerate(self.input[ind]):
+            ind = np.random.choice(list(range(len(input_pattern))), 1)[0]
+            if t + np.max(input_pattern[ind]) <= duration:
+                for i, val in enumerate(input_pattern[ind]):
                     if val > 0:
-                        self.neurons[i].current_list[t + val] += 1
+                        neuron = self.neurons[i]
+                        diff = (neuron.threshold - neuron.u_rest) / neuron.r
+                        neuron.current_list[t + val] += (diff * neuron.tau)
