@@ -58,7 +58,7 @@ class Network:
                 # for conn in self.connections:
                 #     for syn in conn.synapses:
                 #         print(syn.pre.name, "--{}-->".format(syn.w), syn.post.name)
-                current_list.append(pop.neurons[0]._current(int(t // self.dt)))
+                # current_list.append(pop.neurons[0]._current(int(t // self.dt)))
                 time_list.append(t)
             for pop in self.populations:
                 pop.compute_spike_history()
