@@ -43,16 +43,17 @@ class Population:
             distinct_choices = list(set(distinct_choices) - set(ins))
         return input_indices, output_indices
 
-    def encode_input(self, input_pattern, indices, duration, interval):
+    def encode_input(self, input_pattern, indices, duration, interval, dt=1):
         input_pattern = np.array(input_pattern)
         if input_pattern.shape[1] != indices.shape[1]:
             raise ValueError("Wrong input shape.")
         for t in np.arange(0, duration, interval):
             ind = np.random.choice(list(range(len(input_pattern))), 1)[0]
-            self.input_seq.append(ind)
+            for i in np.arange(0, interval, dt):
+                self.input_seq.append(ind)
             if t + np.max(input_pattern[ind]) <= duration:
                 for i, val in enumerate(input_pattern[ind]):
-                    if val > 0:
+                    if val > 0 and t + val < duration:
                         neuron = self.neurons[indices[i]]
                         diff = (neuron.threshold - neuron.u_rest) / neuron.r
                         neuron.current_list[t + val] += (diff * neuron.tau)
@@ -135,8 +136,9 @@ class InputPopulation2(Population):
 
         # self.input = []
 
-    def encode(self, input_pattern, duration, interval):
+    def encode(self, input_pattern, duration, interval, dt=1):
         input_pattern = np.array(input_pattern)
+        self.input_seq = -1 * np.ones(duration*dt)
         if input_pattern.shape[1] != self.size:
             raise ValueError("Wrong input shape.")
         # self.input = input_pattern
@@ -144,7 +146,8 @@ class InputPopulation2(Population):
             ind = np.random.choice(list(range(len(input_pattern))), 1)[0]
             if t + np.max(input_pattern[ind]) <= duration:
                 for i, val in enumerate(input_pattern[ind]):
-                    if val > 0:
+                    if val > 0 and t + val < duration:
                         neuron = self.neurons[i]
                         diff = (neuron.threshold - neuron.u_rest) / neuron.r
                         neuron.current_list[t + val] += (diff * neuron.tau)
+                        self.input_seq[t + val] = ind

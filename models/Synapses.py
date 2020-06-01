@@ -22,10 +22,10 @@ class Synapse:
     def _stdp(self, t, t_pre, t_post):
         delta_t = t_post - t_pre
         dw = 0
-        if delta_t >= 0:
+        if t == t_post:
             dw = self.a_plus(self.w) * \
                 np.exp(-np.fabs(delta_t) / self.tau_plus)
-        else:
+        elif t == t_pre:
             dw = self.a_minus(self.w) * \
                 np.exp(-np.fabs(delta_t) / self.tau_minus)
         return delta_t, dw
@@ -37,9 +37,9 @@ class Synapse:
         self.c += dc
         d += dd
         dw = self.c * d * dt
-        return delta_t, dw
+        return delta_t, dw, d
 
-    def update(self, learning_rule, t, dt, d, da):
+    def update(self, learning_rule, t, dt, d=0, da=None):
         t_pre, t_post = -1, -1
         if self.pre.spike_times:
             t_pre = self.pre.spike_times[-1]
@@ -51,9 +51,9 @@ class Synapse:
                 self.w += dw
                 return delta_t, dw
             elif learning_rule == "rstdp":
-                delta_t, dw = self._rstdp(t, dt, t_pre, t_post, d, da)
+                delta_t, dw, d = self._rstdp(t, dt, t_pre, t_post, d, da)
                 self.w += dw
-                return delta_t, dw
+                return delta_t, dw, d
             else:
                 raise ValueError("INVALID LEARNING RULE")
 

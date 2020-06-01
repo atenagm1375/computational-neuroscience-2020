@@ -60,7 +60,9 @@ class Network:
                 for pop in self.populations:
                     pop.reset(t, self.dt)
                 for conn in self.connections:
-                    conn.update(learning_rule, t, self.dt, self.d, self.da)
+                    up = conn.update(learning_rule, t, self.dt, self.d, self.da)
+                    if learning_rule == "rstdp" and up is not None:
+                        self.d = up[-1]
                 # for conn in self.connections:
                 #     for syn in conn.synapses:
                 #         print(syn.pre.name, "--{}-->".format(syn.w), syn.post.name)
