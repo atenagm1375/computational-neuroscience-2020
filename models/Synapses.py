@@ -2,10 +2,12 @@ import numpy as np
 
 
 class Synapse:
-    def __init__(self, pre, post, weight, delay=1, trace_alpha=5, **parameters):
+    def __init__(self, pre, post, weight, w_min=-200, w_max=200, delay=1, trace_alpha=5, **parameters):
         self.pre = pre
         self.post = post
         self.w = weight
+        self.w_min = w_min
+        self.w_max = w_max
         self.d = delay
         self.parameters = parameters
         self.trace_alpha = trace_alpha
@@ -53,6 +55,7 @@ class Synapse:
             elif learning_rule == "rstdp":
                 delta_t, dw, d = self._rstdp(t, dt, t_pre, t_post, d, da)
                 self.w += dw
+                self.w = np.clip(self.w, self.w_min, self.w_max)
                 return delta_t, dw, d
             else:
                 raise ValueError("INVALID LEARNING RULE")

@@ -16,6 +16,7 @@ class Population:
         self.spikes_per_neuron = []
         self.trace_alpha = trace_alpha
         self.activity = []
+        self.output_activity = None
         self.input_seq = []
 
     def add(self, size, neuron_type, **neuron_params):
@@ -62,12 +63,22 @@ class Population:
         for neuron in self.neurons:
             neuron.compute_potential(t, dt)
 
-    def compute_spike(self, t, dt):
+    def compute_spike(self, t, dt, outs=None):
         self.activity.append([t, 0])
+        if outs is not None:
+            if self.output_activity is None:
+                self.output_activity = [[] for _ in outs]
+            for i in range(len(outs)):
+                self.output_activity[i].append([t, 0])
         for neuron in self.neurons:
             neuron.compute_spike(t, dt)
             if len(neuron.spike_times) > 0 and neuron.spike_times[-1] == t:
                 self.activity[-1][1] += 1
+                if outs is not None:
+                    # ind = self.neurons.index(neuron)
+                    for i, out in enumerate(outs):
+                        if neuron in out:
+                            self.output_activity[i][-1][1] += (1 / len(out))
         self.activity[-1][1] /= self.size
 
     def apply_pre_synaptic(self, t, dt):

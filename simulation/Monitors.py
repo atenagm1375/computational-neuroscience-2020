@@ -76,14 +76,22 @@ def decision_plot(activity1, activity2, activity3=None, save_to=None):
         plt.close()
 
 
-def activity_plot(neurons_activities, inidces, save_to=None):
+def plot_weight_change(weight_change):
+    weight_change = np.array(weight_change)
+    a = weight_change.shape[1] * weight_change.shape[2]
+    plt.plot(np.arange(len(weight_change)), weight_change.reshape((weight_change.shape[0], a)))
+    plt.show()
+
+
+def activity_plot(activity, indices, input_in_time, save_to=None):
     fig = plt.figure(num=None, figsize=(8, 6), dpi=80,
                      facecolor='w', edgecolor='k')
 
-    for ind in range(len(neurons_activities)):
-        neurons_activities[ind] = np.array(neurons_activities[ind])
-        plt.plot(neurons_activities[ind][inidces[ind], 0],
-                 neurons_activities[ind][inidces[ind], 1], label=f"output{ind + 1}")
+    # print(activity)
+    activity = np.array(activity)
+    for ind in range(len(indices)):
+        plt.plot(activity[ind, :, 0],
+                 activity[ind, :, 1], label=f"output{ind + 1}")
     plt.title("Output units' activities")
     plt.xlabel("time")
     plt.ylabel("Activity")

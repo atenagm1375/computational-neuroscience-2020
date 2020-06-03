@@ -19,7 +19,7 @@ class Network:
 
     def set_input_output_neurons(self, in_indices, out_indices):
         self.in_unit = in_indices[0]
-        self.out_unit = out_indices
+        self.out_unit = [np.array(self.populations[0].neurons)[out.astype(int)] for out in out_indices]
 
     def set_dopamine(self, d, da):
         self.d = d
@@ -28,8 +28,7 @@ class Network:
     def da(self, t):
         if len(self.populations) > 1:
             return self.func_da(self.in_unit.input_seq, self.out_unit.neurons, t)
-        outs = [np.array(self.populations[0].neurons)[out.astype(int)] for out in self.out_unit]
-        return self.func_da(self.populations[0].input_seq, outs, t)
+        return self.func_da(self.populations[0].input_seq, self.out_unit, t)
 
     def run(self, time_window, learning_rule=None):
         if self.neuron:
@@ -54,14 +53,18 @@ class Network:
             time_interval = np.arange(
                 self.__t, self.__t + time_window, self.dt)
             for t in time_interval:
-                # if t % 10 == 0:
-                #     print(t)
+                if t % 10 == 0:
+                    print(t)
                 for pop in self.populations:
                     pop.compute_potential(t, self.dt)
                 for pop in self.populations:
                     pop.apply_pre_synaptic(t, self.dt)
-                for pop in self.populations:
-                    pop.compute_spike(t, self.dt)
+                if len(self.populations) == 1:
+                    for pop in self.populations:
+                        pop.compute_spike(t, self.dt, self.out_unit)
+                else:
+                    for pop in self.populations:
+                        pop.compute_spike(t, self.dt)
                 for pop in self.populations:
                     pop.reset(t, self.dt)
                 for conn in self.connections:
