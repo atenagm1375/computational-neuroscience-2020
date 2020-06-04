@@ -76,6 +76,11 @@ def decision_plot(activity1, activity2, activity3=None, save_to=None):
         plt.close()
 
 
+def plot_weight_matrix(weight_matrix):
+    sns.heatmap(weight_matrix)
+    plt.show()
+
+
 def plot_weight_change(weight_change):
     weight_change = np.array(weight_change)
     a = weight_change.shape[1] * weight_change.shape[2]
