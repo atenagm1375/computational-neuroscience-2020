@@ -75,10 +75,15 @@ class Population:
             if len(neuron.spike_times) > 0 and neuron.spike_times[-1] == t:
                 self.activity[-1][1] += 1
                 if outs is not None:
-                    # ind = self.neurons.index(neuron)
-                    for i, out in enumerate(outs):
-                        if neuron in out:
-                            self.output_activity[i][-1][1] += (1 / len(out))
+                    try:
+                        ind = list(np.ravel(outs)).index(neuron)
+                        print(ind)
+                    except ValueError:
+                        continue
+                    self.output_activity[ind % len(outs)][-1][1] += (1 / len(outs[0]))
+                    # for i, out in enumerate(outs):
+                    #     if neuron in out:
+                    #         self.output_activity[i][-1][1] += (1 / len(out))
         self.activity[-1][1] /= self.size
 
     def apply_pre_synaptic(self, t, dt):
