@@ -88,15 +88,15 @@ def plot_weight_change(weight_change):
     plt.show()
 
 
-def activity_plot(activity, indices, input_in_time, save_to=None):
+def activity_plot(out_activities, save_to=None):
     fig = plt.figure(num=None, figsize=(8, 6), dpi=80,
                      facecolor='w', edgecolor='k')
 
     # print(activity)
-    activity = np.array(activity)
-    for ind in range(len(indices)):
-        plt.plot(activity[ind, :, 0],
-                 activity[ind, :, 1], label=f"output{ind + 1}")
+    for ind, activity in enumerate(out_activities):
+        activity = np.array(activity)
+        plt.plot(activity[:, 0],
+                 activity[:, 1], label=f"output{ind + 1}")
     plt.title("Output units' activities")
     plt.xlabel("time")
     plt.ylabel("Activity")

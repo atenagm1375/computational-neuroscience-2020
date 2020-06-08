@@ -28,7 +28,7 @@ class Network:
     def da(self, t):
         if len(self.populations) > 1:
             return self.func_da(self.in_unit.input_seq, self.out_unit.neurons, t)
-        return self.func_da(self.populations[0].input_seq, self.out_unit, self.populations[0].output_activity, t)
+        return self.func_da(self.populations[0], t)
 
     def run(self, time_window, learning_rule=None):
         if self.neuron:
@@ -59,10 +59,7 @@ class Network:
                     pop.compute_potential(t, self.dt)
                 for pop in self.populations:
                     pop.apply_pre_synaptic(t, self.dt)
-                if len(self.populations) == 1:
-                    self.populations[0].compute_spike(t, self.dt, self.out_unit)
-                else:
-                    for pop in self.populations:
+                for pop in self.populations:
                         pop.compute_spike(t, self.dt)
                 for pop in self.populations:
                     pop.reset(t, self.dt)

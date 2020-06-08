@@ -5,13 +5,25 @@ from models.Neurons import Input
 
 
 class Population:
-    def __init__(self, size, neuron_type, exc_ratio=1, trace_alpha=2, **neuron_params):
+    def __init__(self, size, neuron_type, input_part=None, output_part=None, exc_ratio=1, trace_alpha=2, **neuron_params):
         self.size = size
         self.neurons = []
+        self.input_part = input_part
+        self.output_part = output_part
         self.exc_num = int(exc_ratio * size)
+        self.inh_num = self.size - self.exc_num
+        if self.input_part is not None:
+            self.exc_num -= self.input_part.size
+            for neuron in self.input_part.neurons:
+                self.neurons.append(neuron)
+        if self.output_part is not None:
+            self.exc_num -= (len(self.output_part) * self.output_part[0].size)
+            for out in self.output_part:
+                for neuron in out.neurons:
+                    self.neurons.append(neuron)
         for i in range(self.exc_num):
             self.neurons.append(neuron_type(**neuron_params))
-        for i in range(self.size - self.exc_num):
+        for i in range(self.inh_num):
             self.neurons.append(neuron_type(**neuron_params)._set_inh())
         self.spikes_per_neuron = []
         self.trace_alpha = trace_alpha
@@ -63,27 +75,19 @@ class Population:
         for neuron in self.neurons:
             neuron.compute_potential(t, dt)
 
-    def compute_spike(self, t, dt, outs=None):
+    def compute_spike(self, t, dt):
         self.activity.append([t, 0])
-        if outs is not None:
-            if self.output_activity is None:
-                self.output_activity = [[] for _ in outs]
-            for i in range(len(outs)):
-                self.output_activity[i].append([t, 0])
+        if self.output_part is not None:
+            for out_unit in self.output_part:
+                out_unit.activity.append([t, 0])
         for neuron in self.neurons:
             neuron.compute_spike(t, dt)
             if len(neuron.spike_times) > 0 and neuron.spike_times[-1] == t:
                 self.activity[-1][1] += 1
-                if outs is not None:
-                    try:
-                        ind = list(np.ravel(outs)).index(neuron)
-                        print(ind)
-                    except ValueError:
-                        continue
-                    self.output_activity[ind % len(outs)][-1][1] += (1 / len(outs[0]))
-                    # for i, out in enumerate(outs):
-                    #     if neuron in out:
-                    #         self.output_activity[i][-1][1] += (1 / len(out))
+                for out_unit in self.output_part:
+                    if neuron in out_unit.neurons:
+                        out_unit.activity[-1][1] += (1 / out_unit.size)
+                        break
         self.activity[-1][1] /= self.size
 
     def apply_pre_synaptic(self, t, dt):
@@ -148,7 +152,7 @@ class Population:
 class InputPopulation2(Population):
     def __init__(self, size, neuron_type, exc_ratio=1, **neuron_params):
         super(InputPopulation2, self).__init__(
-            size, neuron_type, exc_ratio, trace_alpha=0, **neuron_params)
+            size, neuron_type, exc_ratio=exc_ratio, trace_alpha=0, input_part=None, output_part=None, **neuron_params)
 
         # self.input = []
 
