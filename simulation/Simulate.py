@@ -1,5 +1,3 @@
-import models
-
 import numpy as np
 
 
@@ -40,11 +38,11 @@ class Network:
                 self.neuron.step(t, self.dt)
                 # self.neuron.compute_potential(t, self.dt)
                 # self.neuron.compute_spike(t, self.dt)
-                current_list.append(self.neuron._current(int(t // self.dt)))
+                current_list.append(self.neuron.current(int(t // self.dt)))
                 time_list.append(t)
                 if len(self.neuron.spike_times) > 0 and self.neuron.spike_times[-1] == t:
                     current_list.append(
-                        self.neuron._current(int(t // self.dt)))
+                        self.neuron.current(int(t // self.dt)))
                     time_list.append(t)
                 self.__t = t
         else:
@@ -52,6 +50,10 @@ class Network:
             time_list = []
             time_interval = np.arange(
                 self.__t, self.__t + time_window, self.dt)
+            for pop in self.populations:
+                for neuron in pop.neurons:
+                    neuron.input = np.zeros(time_window // self.dt)
+                    neuron.duration = time_window
             for t in time_interval:
                 if t % 10 == 0:
                     print(t)
@@ -60,7 +62,7 @@ class Network:
                 for pop in self.populations:
                     pop.apply_pre_synaptic(t, self.dt)
                 for pop in self.populations:
-                        pop.compute_spike(t, self.dt)
+                    pop.compute_spike(t, self.dt)
                 for pop in self.populations:
                     pop.reset(t, self.dt)
                 for conn in self.connections:

@@ -2,15 +2,14 @@ import numpy as np
 
 
 class Synapse:
-    def __init__(self, pre, post, weight, w_min=-200, w_max=200, delay=1, trace_alpha=5, **parameters):
+    def __init__(self, pre, post, weight, w_min=-200, w_max=200, delay=1, **parameters):
         self.pre = pre
         self.post = post
         self.w = weight
         self.w_min = w_min
         self.w_max = w_max
-        self.d = delay
+        self.delay = delay
         self.parameters = parameters
-        self.trace_alpha = trace_alpha
 
         self.a_plus = parameters.get("a_plus", lambda x: 0)
         self.a_minus = parameters.get("a_minus", lambda x: 0)

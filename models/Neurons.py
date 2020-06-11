@@ -6,6 +6,7 @@ from copy import deepcopy
 
 class AbstractNeuron(ABC):
     _instance_count = 1
+
     @abstractmethod
     def compute_spike(self, t, dt):
         pass
@@ -24,35 +25,35 @@ class AbstractNeuron(ABC):
 
 
 class LIF(AbstractNeuron):
-    def __init__(self, tau=10, u_rest=-70, r=5, threshold=-50, is_inh=False, current=[], regularize=False):
+    def __init__(self, tau=10, u_rest=-70, r=5, threshold=-50, is_inh=False, current=None, regularize=False):
         self.tau = tau
         self.u_rest = u_rest
         self.r = r
         self.threshold = threshold
-        self.current_list = deepcopy(current)
+        self.current_list = deepcopy(current) if current is not None else []
         self.regularize = regularize
 
         self._u = self.u_rest
         self.spike_times = []
         self.potential_list = []
-        self.input = {}
+        self.input = None
         self.is_inh = is_inh
 
         self.target_synapses = []
+        self.duration = 0
 
         self.name = "Neuron{}".format(AbstractNeuron._instance_count)
         AbstractNeuron._instance_count += 1
 
-    def _set_inh(self):
+    def set_inh(self):
         self.is_inh = True
         return self
 
-    def _current(self, t):
+    def current(self, t):
         return self.current_list[t]
 
     def apply_pre_synaptic(self, t, dt):
-        du = 0
-        du = self.input.get(t, 0) * self.r * dt / self.tau
+        du = self.input[t] * self.r * dt / self.tau
         self.potential_list[-1] += du
         return du
 
@@ -65,12 +66,11 @@ class LIF(AbstractNeuron):
             self.spike_times.append(t)
             self.potential_list.append(u)
             for synapse in self.target_synapses:
-                time = t + synapse.d + dt
-                if time not in synapse.post.input.keys():
-                    synapse.post.input[time] = 0
-                synapse.post.input[time] += ((-1) ** int(self.is_inh) * synapse.w)
+                time = t + synapse.delay + dt
+                if time < self.duration:
+                    synapse.post.input[time] += ((-1) ** int(self.is_inh) * synapse.w)
             if self.regularize:
-                self.threshold += 1
+                self.threshold += 0.1
         elif self.regularize:
             self.threshold -= 0.02
         return u
@@ -79,12 +79,12 @@ class LIF(AbstractNeuron):
         self._u = self._check_spike(t, dt)
 
     def compute_potential(self, t, dt):
-        u = self.__new_u(self._current(int(t / dt)), dt)
+        u = self.__new_u(self.current(int(t / dt)), dt)
         self.potential_list.append(u)
         return u
 
     def step(self, t, dt):
-        u = self.__new_u(self._current(int(t / dt)), dt)
+        u = self.__new_u(self.current(int(t / dt)), dt)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest
@@ -106,12 +106,9 @@ class LIF(AbstractNeuron):
         return -(self._u - self.u_rest) + self.r * i
 
     def reset(self, t, dt, alpha):
-        val = self.input.get(t, 0)
-        if val != 0:
-            self.input.pop(t)
-            for i in range(1, 6):
-                if i + t in self.input.keys():
-                    self.input[t + i] += (val * alpha)
+        for i in range(1, 6):
+            if t + i < self.duration:
+                self.input[t + i] += (self.input[t] * alpha / i)
 
 
 class ELIF(LIF):
@@ -125,12 +122,12 @@ class ELIF(LIF):
         AbstractNeuron._instance_count += 1
 
     def compute_potential(self, t, dt):
-        u = self.__new_u(self._current(int(t / dt)), dt)
+        u = self.__new_u(self.current(int(t / dt)), dt)
         self.potential_list.append(u)
         return u
 
     def step(self, t, dt):
-        u = self.__new_u(self._current(int(t // dt)), dt)
+        u = self.__new_u(self.current(int(t // dt)), dt)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest
@@ -163,7 +160,7 @@ class AddaptiveELIF(ELIF):
         AbstractNeuron._instance_count += 1
 
     def compute_potential(self, t, dt):
-        u = self.__new_u(self._current(int(t / dt)), dt)
+        u = self.__new_u(self.current(int(t / dt)), dt)
         self.potential_list.append(u)
         return u
 
@@ -180,7 +177,7 @@ class AddaptiveELIF(ELIF):
             self.b * self.tau_w * np.count_nonzero(self.spike_times == t)
 
     def step(self, t, dt):
-        u = self.__new_u(self._current(int(t // dt)), dt)
+        u = self.__new_u(self.current(int(t // dt)), dt)
         if u >= self.threshold:
             self.potential_list.append(self.threshold)
             u = self.u_rest
@@ -195,56 +192,3 @@ class AddaptiveELIF(ELIF):
 
     def __new_u(self, current, dt):
         return self._u + self._tau_du_dt(current) * (dt / self.tau)
-
-
-class Input(AbstractNeuron):
-    def __init__(self, interval=1):
-        self.interval = interval
-
-        self.threshold = 1
-        self.u_rest = 0
-        self._u = self.u_rest
-        self.spike_times = []
-        self.target_synapses = []
-        self.input_array = []
-        self.input = []
-        self.potential_list = []
-
-        self.name = "Neuron{}".format(AbstractNeuron._instance_count)
-        AbstractNeuron._instance_count += 1
-
-    def set(self, arr):
-        self.input_array = np.array(arr)
-
-    def compute_potential(self, t, dt):
-        if t in self.input:
-            self.input.remove(t)
-            u = self.threshold
-        else:
-            u = self.u_rest
-        self.potential_list.append(u)
-        return u
-
-    def _check_spike(self, t, dt):
-        u = self.potential_list[-1]
-        if u >= self.threshold:
-            self.potential_list.pop(-1)
-            self.potential_list.append(self.threshold)
-            u = self.u_rest
-            self.spike_times.append(t)
-            self.potential_list.append(u)
-            for synapse in self.target_synapses:
-                time = t + synapse.d
-                if time not in synapse.post.input.keys():
-                    synapse.post.input[time] = 0
-                synapse.post.input[time] += synapse.w
-        return u
-
-    def compute_spike(self, t, dt):
-        self._u = self._check_spike(t, dt)
-
-    def apply_pre_synaptic(self, t, dt):
-        pass
-
-    def reset(self, t, dt, alpha):
-        pass

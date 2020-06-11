@@ -81,11 +81,26 @@ def plot_weight_matrix(weight_matrix):
     plt.show()
 
 
-def plot_weight_change(weight_change):
+def plot_weight_change(weight_change, save_to=None):
     weight_change = np.array(weight_change)
     a = weight_change.shape[1] * weight_change.shape[2]
-    plt.plot(np.arange(len(weight_change)), weight_change.reshape((weight_change.shape[0], a)))
-    plt.show()
+    fig, axs = plt.subplots(2)
+    x = np.array(weight_change)
+    axs[0].plot(np.arange(len(weight_change)), x[:, :, 0])
+    axs[0].set(xlabel='time', ylabel='weight')
+    axs[0].set_title("Output Neuron 1")
+    axs[1].plot(np.arange(len(weight_change)), x[:, :, 1])
+    axs[1].set(xlabel='time', ylabel='weight')
+    axs[1].set_title("Output Neuron 2")
+    for ax in axs.flat:
+        ax.label_outer()
+    if save_to is None:
+        plt.show()
+    else:
+        fig.savefig(save_to)
+        plt.close()
+    # plt.plot(np.arange(len(weight_change)), weight_change.reshape((weight_change.shape[0], a)))
+    # plt.show()
 
 
 def activity_plot(out_activities, save_to=None):

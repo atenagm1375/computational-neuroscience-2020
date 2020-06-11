@@ -42,7 +42,7 @@ stdp_params = {
     "tau_minus": 1
 }
 
-input_pop = InputPopulation2(10, LIF, **input_params)
+input_pop = InputPopulation(10, LIF, **input_params)
 output_pop = Population(1, LIF, trace_alpha=0.1, **neuron_params)
 neuron_params["current"] = current_generator(duration, dt, 0.5, 8)
 output_pop.add(1, LIF, **neuron_params)

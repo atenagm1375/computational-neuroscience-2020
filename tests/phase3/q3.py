@@ -42,7 +42,7 @@ stdp_params = {
     "tau_minus": 1
 }
 
-input_pop = InputPopulation2(10, LIF, **input_params)
+input_pop = InputPopulation(10, LIF, **input_params)
 output_pop = Population(1, LIF, trace_alpha=0.1, **neuron_params)
 neuron_params["current"] = current_generator(duration, dt, 0.5, 8)
 output_pop.add(1, LIF, **neuron_params)
@@ -63,8 +63,8 @@ inh_params = {
 }
 output_pop.add(1, LIF, **inh_params)
 conn.add(list(range(input_pop.size)),
-         [-1], mu=1.25, sigma=0.1, d=0, **stdp_params)
-conn.add([-1], [0, 1], mu=0.8, sigma=0.1, d=0, **stdp_params)
+         [-1], mu=1.25, sigma=0.1, delay=0, **stdp_params)
+conn.add([-1], [0, 1], mu=0.8, sigma=0.1, delay=0, **stdp_params)
 
 weight_matrix = np.zeros((input_pop.size, output_pop.size))
 for syn in conn.synapses:
