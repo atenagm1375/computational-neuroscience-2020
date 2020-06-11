@@ -55,6 +55,10 @@ class Synapse:
                 delta_t, dw, d = self._rstdp(t, dt, t_pre, t_post, d, da)
                 self.w += dw
                 self.w = np.clip(self.w, self.w_min, self.w_max)
+                # print(self.w, dw, float(self.w_min))
+                # if self.w == float(self.w_min):
+                #     import sys
+                #     sys.exit()
                 return delta_t, dw, d
             else:
                 raise ValueError("INVALID LEARNING RULE")

@@ -3,7 +3,7 @@ import numpy as np
 
 class Population:
     def __init__(self, size, neuron_type, input_part=None, output_part=None,
-                 exc_ratio=1, trace_alpha=2, **neuron_params):
+                 exc_ratio=1, trace_alpha=0.05, **neuron_params):
         self.size = size
         self.neurons = []
         self.input_part = input_part
@@ -133,5 +133,6 @@ class InputPopulation(Population):
                 for i, val in enumerate(input_pattern[ind]):
                     neuron = self.neurons[i]
                     diff = (neuron.threshold - neuron.u_rest) / neuron.r
-                    neuron.current_list[t + val] += (diff * neuron.tau / dt)
-                    self.input_seq[t + val] = ind + 1
+                    if val > 0:
+                        neuron.current_list[t + val] += (diff * neuron.tau / dt)
+                        self.input_seq[t + val] = ind + 1

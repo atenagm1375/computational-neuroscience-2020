@@ -25,7 +25,7 @@ class Network:
 
     def da(self, t):
         if len(self.populations) > 1:
-            return self.func_da(self.in_unit.input_seq, self.out_unit.neurons, t)
+            return self.func_da(self.populations[0].input_seq, self.populations[-1].neurons, t)
         return self.func_da(self.populations[0], t)
 
     def run(self, time_window, learning_rule=None):

@@ -25,12 +25,12 @@ class AbstractNeuron(ABC):
 
 
 class LIF(AbstractNeuron):
-    def __init__(self, tau=10, u_rest=-70, r=5, threshold=-50, is_inh=False, current=None, regularize=False):
+    def __init__(self, tau=10, u_rest=-70, r=5, threshold=-50, is_inh=False, current=None, regularize=None):
         self.tau = tau
         self.u_rest = u_rest
         self.r = r
         self.threshold = threshold
-        self.current_list = deepcopy(current) if current is not None else []
+        self.current_list = np.array(deepcopy(current) if current is not None else [])
         self.regularize = regularize
 
         self._u = self.u_rest
@@ -69,10 +69,10 @@ class LIF(AbstractNeuron):
                 time = t + synapse.delay + dt
                 if time < self.duration:
                     synapse.post.input[time] += ((-1) ** int(self.is_inh) * synapse.w)
-            if self.regularize:
-                self.threshold += 0.1
-        elif self.regularize:
-            self.threshold -= 0.02
+            if self.regularize is not None:
+                self.threshold += self.regularize[0]
+        elif self.regularize is not None:
+            self.threshold -= self.regularize[1]
         return u
 
     def compute_spike(self, t, dt):
@@ -108,7 +108,7 @@ class LIF(AbstractNeuron):
     def reset(self, t, dt, alpha):
         for i in range(1, 6):
             if t + i < self.duration:
-                self.input[t + i] += (self.input[t] * alpha / i)
+                self.input[t + i] += (self.input[t + i - 1] * alpha)
 
 
 class ELIF(LIF):

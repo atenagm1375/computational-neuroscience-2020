@@ -20,13 +20,14 @@ def current_generator(duration, dt, val, begin=5, ratio=8):
 
 
 def main(duration, dt, src_size, dest_size, interval, initial_dopamine, func_da, input_pattern,
-         n_params, s_params, regularize=False, plot_change=False):
+         n_params, s_params, trace_alpha=0.1, regularize=None, plot_change=False):
+
     src = InputPopulation(src_size, LIF, **n_params)
+    src.encode(input_pattern, duration, interval)
+
     n_params["current"] = list(np.zeros(duration // dt))
     n_params["regularize"] = regularize
-    dest = Population(dest_size, LIF, **n_params)
-
-    src.encode(input_pattern, duration, interval)
+    dest = Population(dest_size, LIF, trace_alpha=trace_alpha, **n_params)
 
     conn = Connection(src, dest).apply(**s_params)
 
@@ -35,6 +36,8 @@ def main(duration, dt, src_size, dest_size, interval, initial_dopamine, func_da,
     net.run(duration, learning_rule="rstdp")
 
     # raster_plot(src.spikes_per_neuron)
+    # raster_plot(dest.spikes_per_neuron)
+
     print(conn.weight_in_time[-1])
     plot_weight_matrix(conn.weight_in_time[-1])
     if plot_change:
@@ -44,35 +47,47 @@ def main(duration, dt, src_size, dest_size, interval, initial_dopamine, func_da,
 def trial1():
     def func_da(src_seq, dest_neurons, t):
         reward = [0 for _ in range(len(dest_neurons))]
+        nonz = np.nonzero(src_seq[:t])[0]
+        if nonz.size > 0:
+            ind = np.max(nonz)
+        else:
+            ind = -1
         for i in range(len(dest_neurons)):
-            if len(dest_neurons[i].spike_times) > 0 and dest_neurons[i].spike_times[-1] == t and src_seq[t] >= 0:
-                reward[i] = -1 if src_seq[t] != i else 1
-        dopamine_change = np.sum(0.8 * np.array(reward))
+            if len(dest_neurons[i].spike_times) > 0 and dest_neurons[i].spike_times[-1] == t:
+                if ind >= 0:
+                    reward[i] += -1 if int(src_seq[ind]) != i + 1 else 1
+                    if i > 0:
+                        print(reward)
+        if ind >= 0:
+            src_seq[ind-2:ind+1] = 0
+        dopamine_change = np.sum(0.2 * np.array(reward))
         if np.prod(np.array(reward)) < 0:
-            dopamine_change -= 0.1
+            dopamine_change -= 0.001
         return dopamine_change
 
-    duration = 15000
+    duration = 30000
     dt = 1
 
     neuron_params = {
-        "tau": 10,
-        "r": 2,
-        "threshold": -60,
-        "current": current_generator(duration, dt, 0.5, 5, 100)
+        "tau": 5,
+        "r": 1,
+        "threshold": -65,
+        "current": current_generator(duration, dt, 1, 5, 1)
     }
 
     rstdp_params = {
         "connection_type": "full",
-        "mu": 1.6,
-        "sigma": 0.25,
-        "a_plus": lambda x: 0.5 if x < 20 else 0.001,
-        "a_minus": lambda x: -0.5 if x > -20 else -0.001,
+        "mu": 9,
+        "sigma": 0.2,
+        "w_min": -16,
+        "w_max": 16,
+        "a_plus": lambda x: 0.005,
+        "a_minus": lambda x: -0.01,
         "tau_plus": 8,
         "tau_minus": 8,
-        "c": 0.5,
-        "tau_c": 1000,
-        "tau_d": 20
+        "c": 0.05,
+        "tau_c": 200,
+        "tau_d": 50
     }
 
     src_size = 10
@@ -83,44 +98,56 @@ def trial1():
         [0, 0, 0, 0, 0, 2, 2, 3, 1, 1]
     ]
 
-    interval = 20
-    initial_dopamine = 0.8
+    interval = 500
+    initial_dopamine = 0.05
     main(duration, dt, src_size, dest_size, interval, initial_dopamine, func_da, input_pattern,
-         neuron_params, rstdp_params)
+         neuron_params, rstdp_params, plot_change=True)
 
 
 def trial2():
     def func_da(src_seq, dest_neurons, t):
         reward = [0 for _ in range(len(dest_neurons))]
+        nonz = np.nonzero(src_seq[:t])[0]
+        if nonz.size > 0:
+            ind = np.max(nonz)
+        else:
+            ind = -1
         for i in range(len(dest_neurons)):
-            if len(dest_neurons[i].spike_times) > 0 and dest_neurons[i].spike_times[-1] == t and src_seq[t] >= 0:
-                reward[i] = -1 if src_seq[t] != i else 1
-        dopamine_change = np.sum(0.8 * np.array(reward))
+            if len(dest_neurons[i].spike_times) > 0 and dest_neurons[i].spike_times[-1] == t:
+                if ind >= 0:
+                    reward[i] += -1 if int(src_seq[ind]) != i + 1 else 1
+                    if i > 0:
+                        print(reward)
+        if ind >= 0:
+            src_seq[ind-2:ind+1] = 0
+        dopamine_change = np.sum(0.2 * np.array(reward))
         if np.prod(np.array(reward)) < 0:
-            dopamine_change -= 0.1
+            dopamine_change -= 0.001
         return dopamine_change
 
-    duration = 15000
+    duration = 30000
     dt = 1
 
     neuron_params = {
-        "tau": 10,
-        "r": 2,
-        "threshold": -60,
-        "current": current_generator(duration, dt, 0.5, 5, 100)
+        "tau": 5,
+        "r": 1,
+        "threshold": -65,
+        "current": current_generator(duration, dt, 1, 5, 1)
     }
 
     rstdp_params = {
         "connection_type": "full",
-        "mu": 1.6,
-        "sigma": 0.25,
-        "a_plus": lambda x: 0.5 if x < 20 else 0.001,
-        "a_minus": lambda x: -0.5 if x > -20 else -0.001,
-        "tau_plus": 8,
-        "tau_minus": 8,
-        "c": 0.5,
-        "tau_c": 1000,
-        "tau_d": 100
+        "mu": 9,
+        "sigma": 0.2,
+        "w_min": -16,
+        "w_max": 16,
+        "a_plus": lambda x: 0.01,
+        "a_minus": lambda x: -0.02,
+        "tau_plus": 4,
+        "tau_minus": 4,
+        "c": 0.1,
+        "tau_c": 100,
+        "tau_d": 20
     }
 
     src_size = 10
@@ -131,138 +158,54 @@ def trial2():
         [0, 0, 0, 0, 0, 2, 2, 3, 1, 1]
     ]
 
-    interval = 20
-    initial_dopamine = 0.8
+    interval = 500
+    initial_dopamine = 0.1
     main(duration, dt, src_size, dest_size, interval, initial_dopamine, func_da, input_pattern,
-         neuron_params, rstdp_params)
+         neuron_params, rstdp_params, plot_change=True)
 
 
 def trial3():
     def func_da(src_seq, dest_neurons, t):
         reward = [0 for _ in range(len(dest_neurons))]
+        nonz = np.nonzero(src_seq[:t])[0]
+        if nonz.size > 0:
+            ind = np.max(nonz)
+        else:
+            ind = -1
         for i in range(len(dest_neurons)):
-            if len(dest_neurons[i].spike_times) > 0 and dest_neurons[i].spike_times[-1] == t and src_seq[t] >= 0:
-                reward[i] = -1 if src_seq[t] != i else 1
-        dopamine_change = np.sum(0.8 * np.array(reward))
-        if np.prod(np.array(reward)) < 0:
-            dopamine_change -= 0.1
-        return dopamine_change
-
-    duration = 15000
-    dt = 1
-
-    neuron_params = {
-        "tau": 10,
-        "r": 2,
-        "threshold": -60,
-        "current": current_generator(duration, dt, 0.5, 5, 100)
-    }
-
-    rstdp_params = {
-        "connection_type": "full",
-        "mu": 1.6,
-        "sigma": 0.25,
-        "a_plus": lambda x: 0.5 if x < 20 else 0.001,
-        "a_minus": lambda x: -0.5 if x > -20 else -0.001,
-        "tau_plus": 8,
-        "tau_minus": 8,
-        "c": 0.5,
-        "tau_c": 500,
-        "tau_d": 20
-    }
-
-    src_size = 10
-    dest_size = 2
-
-    input_pattern = [
-        [1, 2, 3, 1, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 2, 2, 3, 1, 1]
-    ]
-
-    interval = 20
-    initial_dopamine = 0.8
-    main(duration, dt, src_size, dest_size, interval, initial_dopamine, func_da, input_pattern,
-         neuron_params, rstdp_params)
-
-
-def trial4():
-    def func_da(src_seq, dest_neurons, t):
-        reward = [0 for _ in range(len(dest_neurons))]
-        for i in range(len(dest_neurons)):
-            if len(dest_neurons[i].spike_times) > 0 and dest_neurons[i].spike_times[-1] == t and src_seq[t] >= 0:
-                reward[i] = -1 if src_seq[t] != i else 1
-        dopamine_change = np.sum(0.5 * np.array(reward))
-        if np.prod(np.array(reward)) < 0:
-            dopamine_change -= 0.01
-        return dopamine_change
-
-    duration = 15000
-    dt = 1
-
-    neuron_params = {
-        "tau": 10,
-        "r": 2,
-        "threshold": -60,
-        "current": current_generator(duration, dt, 0.5, 5, 100)
-    }
-
-    rstdp_params = {
-        "connection_type": "full",
-        "mu": 1.6,
-        "sigma": 0.25,
-        "a_plus": lambda x: 0.5 if x < 20 else 0.001,
-        "a_minus": lambda x: -0.5 if x > -20 else -0.001,
-        "tau_plus": 8,
-        "tau_minus": 8,
-        "c": 0.5,
-        "tau_c": 1000,
-        "tau_d": 20
-    }
-
-    src_size = 10
-    dest_size = 2
-
-    input_pattern = [
-        [1, 2, 3, 1, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 2, 2, 3, 1, 1]
-    ]
-
-    interval = 20
-    initial_dopamine = 0.2
-    main(duration, dt, src_size, dest_size, interval, initial_dopamine, func_da, input_pattern,
-         neuron_params, rstdp_params)
-
-
-def trial5():
-    def func_da(src_seq, dest_neurons, t):
-        reward = [0 for _ in range(len(dest_neurons))]
-        for i in range(len(dest_neurons)):
-            if len(dest_neurons[i].spike_times) > 0 and dest_neurons[i].spike_times[-1] == t and src_seq[t] >= 0:
-                reward[i] += -2 if src_seq[t] != i else 1
-        dopamine_change = np.sum(1 * np.array(reward))
+            if len(dest_neurons[i].spike_times) > 0 and dest_neurons[i].spike_times[-1] == t:
+                if ind >= 0:
+                    reward[i] += -1 if int(src_seq[ind]) != i + 1 else 1
+                    if i > 0:
+                        print(reward)
+        if ind >= 0:
+            src_seq[ind] = 0
+        dopamine_change = np.sum(0.02 * np.array(reward))
         if np.prod(np.array(reward)) < 0:
             dopamine_change -= 0.001
         return dopamine_change
 
-    duration = 50000
+    duration = 30000
     dt = 1
 
     neuron_params = {
-        "tau": 10,
-        "r": 2,
-        "threshold": -50,
-        "current": current_generator(duration, dt, 0.5, 5, 1)
+        "tau": 5,
+        "r": 1,
+        "threshold": -65,
+        "current": current_generator(duration, dt, 1, 5, 1)
     }
 
     rstdp_params = {
         "connection_type": "full",
-        "mu": 0.6,
-        "sigma": 0.08,
-        "a_plus": lambda x: 0.02,
+        "mu": 8,
+        "sigma": 0.2,
+        "w_min": -16,
+        "w_max": 16,
+        "a_plus": lambda x: 0.01,
         "a_minus": lambda x: -0.02,
         "tau_plus": 8,
         "tau_minus": 8,
-        "c": 0.5,
+        "c": 0.05,
         "tau_c": 100,
         "tau_d": 50
     }
@@ -276,7 +219,127 @@ def trial5():
     ]
 
     interval = 500
-    initial_dopamine = 0.01
+    initial_dopamine = 0.05
+    main(duration, dt, src_size, dest_size, interval, initial_dopamine, func_da, input_pattern,
+         neuron_params, rstdp_params, regularize=(0.2, 0.1), plot_change=True)
+
+
+def trial4():
+    def func_da(src_seq, dest_neurons, t):
+        reward = [0 for _ in range(len(dest_neurons))]
+        nonz = np.nonzero(src_seq[:t])[0]
+        if nonz.size > 0:
+            ind = np.max(nonz)
+        else:
+            ind = -1
+        for i in range(len(dest_neurons)):
+            if len(dest_neurons[i].spike_times) > 0 and dest_neurons[i].spike_times[-1] == t:
+                if ind >= 0:
+                    reward[i] += -1 if int(src_seq[ind]) != i + 1 else 1
+                    if i > 0:
+                        print(reward)
+        if ind >= 0:
+            src_seq[ind-2:ind+1] = 0
+        dopamine_change = np.sum(0.8 * np.array(reward))
+        if np.prod(np.array(reward)) < 0:
+            dopamine_change -= 0.001
+        return dopamine_change
+
+    duration = 30000
+    dt = 1
+
+    neuron_params = {
+        "tau": 5,
+        "r": 1,
+        "threshold": -65,
+        "current": current_generator(duration, dt, 1, 5, 1)
+    }
+
+    rstdp_params = {
+        "connection_type": "full",
+        "mu": 8,
+        "sigma": 0.2,
+        "w_min": -16,
+        "w_max": 16,
+        "a_plus": lambda x: 0.01,
+        "a_minus": lambda x: -0.02,
+        "tau_plus": 8,
+        "tau_minus": 8,
+        "c": 0.1,
+        "tau_c": 100,
+        "tau_d": 50
+    }
+
+    src_size = 10
+    dest_size = 2
+
+    input_pattern = [
+        [1, 2, 3, 1, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 2, 2, 3, 1, 1]
+    ]
+
+    interval = 500
+    initial_dopamine = 0.1
+    main(duration, dt, src_size, dest_size, interval, initial_dopamine, func_da, input_pattern,
+         neuron_params, rstdp_params, plot_change=True)
+
+
+def trial5():
+    def func_da(src_seq, dest_neurons, t):
+        reward = [0 for _ in range(len(dest_neurons))]
+        nonz = np.nonzero(src_seq[:t])[0]
+        if nonz.size > 0:
+            ind = np.max(nonz)
+        else:
+            ind = -1
+        for i in range(len(dest_neurons)):
+            if len(dest_neurons[i].spike_times) > 0 and dest_neurons[i].spike_times[-1] == t:
+                if ind >= 0:
+                    reward[i] += -1 if int(src_seq[ind]) != i + 1 else 1
+                    if i > 0:
+                        print(reward)
+        if ind >= 0:
+            src_seq[ind] = 0
+        dopamine_change = np.sum(0.2 * np.array(reward))
+        if np.prod(np.array(reward)) < 0:
+            dopamine_change -= 0.0001
+        return dopamine_change
+
+    duration = 30000
+    dt = 1
+
+    neuron_params = {
+        "tau": 5,
+        "r": 1,
+        "threshold": -65,
+        "current": current_generator(duration, dt, 1, 5, 1)
+    }
+
+    rstdp_params = {
+        "connection_type": "full",
+        "mu": 12,
+        "sigma": 0.1,
+        "w_min": -16,
+        "w_max": 16,
+        "a_plus": lambda x: 0.01,
+        "a_minus": lambda x: -0.01,
+        "tau_plus": 8,
+        "tau_minus": 8,
+        "c": 0.05,
+        "tau_c": 100,
+        "tau_d": 50
+    }
+
+    src_size = 10
+    dest_size = 2
+
+    input_pattern = [
+        [1, 2, 3, 1, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 2, 2, 3, 1, 1]
+    ]
+
+    interval = 500
+    initial_dopamine = 0.05
     main(duration, dt, src_size, dest_size, interval, initial_dopamine, func_da, input_pattern,
          neuron_params, rstdp_params, plot_change=True)
 
@@ -284,38 +347,45 @@ def trial5():
 def trial6():
     def func_da(src_seq, dest_neurons, t):
         reward = [0 for _ in range(len(dest_neurons))]
+        nonz = np.nonzero(src_seq[:t])[0]
+        if nonz.size > 0:
+            ind = np.max(nonz)
+        else:
+            ind = -1
         for i in range(len(dest_neurons)):
             if len(dest_neurons[i].spike_times) > 0 and dest_neurons[i].spike_times[-1] == t:
-                nonz = np.nonzero(src_seq[:t])
-                if not nonz:
-                    ind = np.max(nonz)
-                    print(ind)
-                    reward[i] += -2 if src_seq[ind] != i + 1 else 1
-                    src_seq[ind] = 0
-        dopamine_change = np.sum(2 * np.array(reward))
+                if ind >= 0:
+                    reward[i] += -1 if int(src_seq[ind]) != i + 1 else 1
+                    if i > 0:
+                        print(reward)
+        if ind >= 0:
+            src_seq[ind] = 0
+        dopamine_change = np.sum(0.2 * np.array(reward))
         if np.prod(np.array(reward)) < 0:
-            dopamine_change -= 0.001
+            dopamine_change -= 0.0001
         return dopamine_change
 
-    duration = 50000
+    duration = 30000
     dt = 1
 
     neuron_params = {
-        "tau": 10,
+        "tau": 5,
         "r": 1,
-        "threshold": -58,
-        "current": current_generator(duration, dt, 0.5, 5, 1)
+        "threshold": -65,
+        "current": current_generator(duration, dt, 1, 5, 1)
     }
 
     rstdp_params = {
         "connection_type": "full",
-        "mu": 0.6,
-        "sigma": 0.08,
-        "a_plus": lambda x: 0.02,
-        "a_minus": lambda x: -0.02,
+        "mu": 12,
+        "sigma": 0.1,
+        "w_min": -16,
+        "w_max": 16,
+        "a_plus": lambda x: 0.01,
+        "a_minus": lambda x: -0.01,
         "tau_plus": 8,
         "tau_minus": 8,
-        "c": 2,
+        "c": 0.05,
         "tau_c": 100,
         "tau_d": 50
     }
@@ -329,6 +399,6 @@ def trial6():
     ]
 
     interval = 500
-    initial_dopamine = 0.01
+    initial_dopamine = 0.05
     main(duration, dt, src_size, dest_size, interval, initial_dopamine, func_da, input_pattern,
          neuron_params, rstdp_params, plot_change=True)
