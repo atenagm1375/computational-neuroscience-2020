@@ -235,7 +235,7 @@ def trial4():
         for i in range(len(dest_neurons)):
             if len(dest_neurons[i].spike_times) > 0 and dest_neurons[i].spike_times[-1] == t:
                 if ind >= 0:
-                    reward[i] += -1 if int(src_seq[ind]) != i + 1 else 1
+                    reward[i] += -2 if int(src_seq[ind]) != i + 1 else 1
                     if i > 0:
                         print(reward)
         if ind >= 0:
@@ -257,15 +257,15 @@ def trial4():
 
     rstdp_params = {
         "connection_type": "full",
-        "mu": 8,
+        "mu": 6,
         "sigma": 0.2,
         "w_min": -16,
         "w_max": 16,
-        "a_plus": lambda x: 0.01,
-        "a_minus": lambda x: -0.02,
+        "a_plus": lambda x: 0.1,
+        "a_minus": lambda x: -0.05,
         "tau_plus": 8,
         "tau_minus": 8,
-        "c": 0.1,
+        "c": 0.05,
         "tau_c": 100,
         "tau_d": 50
     }
@@ -279,7 +279,7 @@ def trial4():
     ]
 
     interval = 500
-    initial_dopamine = 0.1
+    initial_dopamine = 0.01
     main(duration, dt, src_size, dest_size, interval, initial_dopamine, func_da, input_pattern,
          neuron_params, rstdp_params, plot_change=True)
 
