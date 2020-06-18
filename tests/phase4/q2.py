@@ -2,7 +2,7 @@ from models.Neurons import LIF
 from models.Populations import Population, InputPopulation
 from models.Connections import Connection
 from simulation.Simulate import Network
-from simulation.Monitors import activity_plot
+from simulation.Monitors import activity_plot, raster_plot
 
 import numpy as np
 
@@ -20,14 +20,15 @@ def current_generator(duration, dt, val, begin=5, ratio=8):
 
 
 def main(trial_no, duration, dt, population_size, n, input_size, output_size, interval, initial_dopamine,
-         func_da, neuron_params, rstdp_params):
+         func_da, neuron_params, rstdp_params, output_current=None):
 
     inp = InputPopulation(input_size, LIF, **neuron_params)
     input_pattern = []
     for i in range(n):
         input_pattern.append(np.random.randint(0, 5, input_size))
     inp.encode(input_pattern, duration, interval, dt)
-    # neuron_params["current"] = np.zeros(duration // dt)
+    if output_current is not None:
+        neuron_params["current"] = output_current * np.ones(duration // dt)
     outs = []
     # neuron_params["regularize"] = True
     for i in range(n):
@@ -40,8 +41,8 @@ def main(trial_no, duration, dt, population_size, n, input_size, output_size, in
     net = Network(populations=[pop], connections=[conn], time_step=dt)
     net.set_dopamine(initial_dopamine, func_da)
     net.run(duration, learning_rule="rstdp")
-    # inp.compute_spike_history()
-    # raster_plot(np.array(inp.spikes_per_neuron))
+    inp.compute_spike_history()
+    raster_plot(np.array(inp.spikes_per_neuron))
     activity_plot([out.activity for out in outs], save_to="./q2trial{}.png".format(trial_no))
 
 
@@ -475,3 +476,195 @@ def trial9():
     }
 
     main(9, duration, dt, 100, 10, 5, 2, 500, 0.01, func_da, neuron_params, rstdp_params)
+
+
+def trial10():
+    def func_da(pop, t):
+        reward = [0 for _ in range(len(pop.output_part))]
+        activities = [out.activity[-1][1] for out in pop.output_part]
+        most_active = np.argmax(activities)
+        nonz = np.nonzero(pop.input_part.input_seq[:t])[0]
+        if nonz.size > 0:
+            ind = np.max(nonz)
+        else:
+            ind = -1
+        if ind >= 0:
+            reward[int(most_active)] = 1 if pop.input_part.input_seq[ind] == most_active else -1
+
+        dopamine_change = np.sum(0.2 * np.array(reward))
+        if activities.count(most_active) > 1:
+            dopamine_change -= 0.005
+        return dopamine_change
+
+    duration = 5000
+    dt = 1
+
+    neuron_params = {
+        "tau": 5,
+        "r": 2,
+        "threshold": -65,
+        "current": current_generator(duration, dt, 0.5, 5, 1)
+    }
+
+    rstdp_params = {
+        "connection_type": "fixed_pre",
+        "p": 0.1,
+        "mu": 0.8,
+        "sigma": 0.1,
+        "w_min": -5,
+        "w_max": 5,
+        "delay": np.random.randint(1, 5, 1),
+        "a_plus": lambda x: 0.1,
+        "a_minus": lambda x: -0.05,
+        "tau_plus": 4,
+        "tau_minus": 3,
+        "c": 0.1,
+        "tau_c": 50,
+        "tau_d": 15
+    }
+
+    main(10, duration, dt, 1000, 2, 50, 20, 100, 0.1, func_da, neuron_params, rstdp_params, output_current=4)
+
+
+def trial11():
+    def func_da(pop, t):
+        reward = [0 for _ in range(len(pop.output_part))]
+        activities = [out.activity[-1][1] for out in pop.output_part]
+        most_active = np.argmax(activities)
+        nonz = np.nonzero(pop.input_part.input_seq[:t])[0]
+        if nonz.size > 0:
+            ind = np.max(nonz)
+        else:
+            ind = -1
+        if ind >= 0:
+            reward[int(most_active)] = 1 if pop.input_part.input_seq[ind] == most_active else -1
+
+        dopamine_change = np.sum(0.2 * np.array(reward))
+        if activities.count(most_active) > 1:
+            dopamine_change -= 0.005
+        return dopamine_change
+
+    duration = 5000
+    dt = 1
+
+    neuron_params = {
+        "tau": 5,
+        "r": 2,
+        "threshold": -65,
+        "current": current_generator(duration, dt, 0.5, 5, 1)
+    }
+
+    rstdp_params = {
+        "connection_type": "fixed_pre",
+        "p": 0.1,
+        "mu": 0.8,
+        "sigma": 0.1,
+        "w_min": -5,
+        "w_max": 5,
+        "delay": np.random.randint(1, 5, 1),
+        "a_plus": lambda x: 0.1,
+        "a_minus": lambda x: -0.05,
+        "tau_plus": 4,
+        "tau_minus": 3,
+        "c": 0.1,
+        "tau_c": 50,
+        "tau_d": 15
+    }
+
+    main(11, duration, dt, 1000, 5, 50, 20, 100, 0.1, func_da, neuron_params, rstdp_params, output_current=4)
+
+
+def trial12():
+    def func_da(pop, t):
+        reward = [0 for _ in range(len(pop.output_part))]
+        activities = [out.activity[-1][1] for out in pop.output_part]
+        most_active = np.argmax(activities)
+        nonz = np.nonzero(pop.input_part.input_seq[:t])[0]
+        if nonz.size > 0:
+            ind = np.max(nonz)
+        else:
+            ind = -1
+        if ind >= 0:
+            reward[int(most_active)] = 1 if pop.input_part.input_seq[ind] == most_active else -1
+
+        dopamine_change = np.sum(0.2 * np.array(reward))
+        if activities.count(most_active) > 1:
+            dopamine_change -= 0.01
+        return dopamine_change
+
+    duration = 5000
+    dt = 1
+
+    neuron_params = {
+        "tau": 5,
+        "r": 2,
+        "threshold": -65,
+        "current": current_generator(duration, dt, 0.5, 5, 1)
+    }
+
+    rstdp_params = {
+        "connection_type": "fixed_pre",
+        "p": 0.25,
+        "mu": 0.5,
+        "sigma": 0.1,
+        "w_min": -5,
+        "w_max": 5,
+        "delay": np.random.randint(1, 5, 1),
+        "a_plus": lambda x: 0.1,
+        "a_minus": lambda x: -0.05,
+        "tau_plus": 4,
+        "tau_minus": 3,
+        "c": 0.1,
+        "tau_c": 50,
+        "tau_d": 15
+    }
+
+    main(12, duration, dt, 1000, 2, 50, 20, 100, 0.1, func_da, neuron_params, rstdp_params, output_current=4)
+
+
+def trial13():
+    def func_da(pop, t):
+        reward = [0 for _ in range(len(pop.output_part))]
+        activities = [out.activity[-1][1] for out in pop.output_part]
+        most_active = np.argmax(activities)
+        nonz = np.nonzero(pop.input_part.input_seq[:t])[0]
+        if nonz.size > 0:
+            ind = np.max(nonz)
+        else:
+            ind = -1
+        if ind >= 0:
+            reward[int(most_active)] = 1 if pop.input_part.input_seq[ind] == most_active else -1
+
+        dopamine_change = np.sum(0.2 * np.array(reward))
+        if activities.count(most_active) > 1:
+            dopamine_change -= 0.005
+        return dopamine_change
+
+    duration = 5000
+    dt = 1
+
+    neuron_params = {
+        "tau": 5,
+        "r": 2,
+        "threshold": -65,
+        "current": current_generator(duration, dt, 0.5, 5, 1)
+    }
+
+    rstdp_params = {
+        "connection_type": "fixed_pre",
+        "p": 0.25,
+        "mu": 0.5,
+        "sigma": 0.1,
+        "w_min": -5,
+        "w_max": 5,
+        "delay": np.random.randint(1, 5, 1),
+        "a_plus": lambda x: 0.1,
+        "a_minus": lambda x: -0.1,
+        "tau_plus": 4,
+        "tau_minus": 3,
+        "c": 0.1,
+        "tau_c": 50,
+        "tau_d": 15
+    }
+
+    main(13, duration, dt, 1000, 5, 50, 20, 100, 0.1, func_da, neuron_params, rstdp_params, output_current=3.5)
