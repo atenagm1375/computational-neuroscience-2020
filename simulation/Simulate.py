@@ -53,7 +53,7 @@ class Network:
                 self.__t, self.__t + time_window, self.dt)
             for pop in self.populations:
                 for neuron in pop.neurons:
-                    neuron.input = np.zeros(int(time_window // self.dt))
+                    neuron.input = np.zeros(int(time_window // self.dt) + 1)
                     neuron.duration = time_window
             for t in time_interval:
                 if t % 10 == 0:

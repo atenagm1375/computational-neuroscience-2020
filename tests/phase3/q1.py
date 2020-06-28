@@ -39,6 +39,10 @@ for i in np.arange(-1 * duration, duration, 0.5):
         "tau_minus": 5
     }
     syn = Synapse(src, dest, 5, **stdp_params)
+
+    src.input = np.zeros(int(duration // dt))
+    dest.input = np.zeros(int(duration // dt))
+
     for t in np.arange(0, duration, dt):
         src.compute_potential(t, dt)
         src.apply_pre_synaptic(t, dt)
@@ -56,7 +60,7 @@ for i in np.arange(-1 * duration, duration, 0.5):
             break
 
 
-print(delta_w_delta_t)
+# print(delta_w_delta_t)
 
 delta_w_delta_t = np.array(delta_w_delta_t)
 plt.plot(delta_w_delta_t[:, 0], delta_w_delta_t[:, 1], 'o')

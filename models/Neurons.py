@@ -53,7 +53,7 @@ class LIF(AbstractNeuron):
         return self.current_list[t]
 
     def apply_pre_synaptic(self, t, dt):
-        du = self.input[t] * self.r * dt / self.tau
+        du = self.input[int(t // dt)] * self.r * dt / self.tau
         self.potential_list[-1] += du
         return du
 
@@ -68,7 +68,7 @@ class LIF(AbstractNeuron):
             for synapse in self.target_synapses:
                 time = t + synapse.delay + dt
                 if time < self.duration:
-                    synapse.post.input[time] += ((-1) ** int(self.is_inh) * synapse.w)
+                    synapse.post.input[int(time // dt)] += ((-1) ** int(self.is_inh) * synapse.w)
             if self.regularize is not None:
                 self.threshold += self.regularize[0]
         elif self.regularize is not None:
@@ -108,7 +108,7 @@ class LIF(AbstractNeuron):
     def reset(self, t, dt, alpha):
         for i in range(1, 6):
             if t + i < self.duration:
-                self.input[t + i] += (self.input[t + i - 1] * alpha)
+                self.input[int(t // dt) + i] += (self.input[int(t // dt) + i - 1] * alpha)
 
 
 class ELIF(LIF):

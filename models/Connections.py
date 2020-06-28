@@ -27,7 +27,8 @@ class Connection:
         if connection_type == "full":
             for i, neuron_pre in enumerate(self.pre.neurons):
                 for j, neuron_post in enumerate(self.post.neurons):
-                    if self.pre.input_part is not None and j not in self.pre.input_part or self.pre.input_part is None:
+                    if (self.pre.input_part is not None and j not in self.pre.input_part) or \
+                            self.pre.input_part is None:
                         syn = Synapse(neuron_pre, neuron_post,
                                       np.random.normal(mu, sigma), **kwargs)
                         self.synapses.append(syn)
@@ -51,7 +52,8 @@ class Connection:
         elif connection_type == "fixed_pre":
             n = int(kwargs["p"] * self.post.size)
             for j, neuron_post in enumerate(self.post.neurons):
-                if self.pre.input_part is not None and neuron_post not in self.pre.input_part.neurons:
+                if (self.pre.input_part is not None and neuron_post not in self.pre.input_part.neurons) or \
+                        self.pre.input_part is None:
                     pres = np.random.choice(range(self.pre.size), n, replace=False)
                     for i in pres:
                         syn = Synapse(self.pre.neurons[i], neuron_post,
