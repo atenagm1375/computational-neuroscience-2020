@@ -12,4 +12,5 @@ def q2_t1():
     gamma = 0.01
     n_orientations = 4
     filter_sizes = [3, 5, 7, 9, 11, 13, 15, 17]
-    return lambd, sigma, gamma, n_orientations, filter_sizes
+    time_window = 20
+    return lambd, sigma, gamma, n_orientations, filter_sizes, time_window

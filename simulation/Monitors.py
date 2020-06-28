@@ -147,3 +147,16 @@ def plot_images(images, titles=None, save_to=None):
     else:
         fig.savefig(save_to)
         plt.close()
+
+
+def plot_images_time_to_spike(time_to_spikes, save_to=None):
+    shape = time_to_spikes.shape
+    fig, axes = plt.subplots(*shape)
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            sns.heatmap(time_to_spikes[i, j], ax=axes[i, j])
+    if save_to is None:
+        plt.show()
+    else:
+        fig.savefig(save_to)
+        plt.close()

@@ -4,7 +4,8 @@ import sys
 from PIL import Image
 from image_processing.filters import *
 from image_processing.convolution import Convolution
-from simulation.Monitors import plot_images
+from image_processing.encoders import IntensityToLatency
+from simulation.Monitors import plot_images, plot_images_time_to_spike
 
 
 def q1(sigma1, sigma2, filter_sizes, k):
@@ -18,17 +19,20 @@ def q1(sigma1, sigma2, filter_sizes, k):
         plot_images(np.array([image, filtered_im]), np.array(["Original Image", "Image after DoG filter"]))
 
 
-def q2(lambd, sigma, gamma, n_orientations, filter_sizes):
+def q2(lambd, sigma, gamma, n_orientations, filter_sizes, time_window):
     image = np.asarray(Image.open('tests/phase5/car.jpg').resize((800, 400)).convert('L'))
     # plot_images(np.array([image]), np.array(["Original Image"]))
 
     filtered_images = []
     kernels = []
     titles = []
+    time_to_spikes = []
+    enc = IntensityToLatency(time_window)
     for ind, n in enumerate(filter_sizes):
         filtered_images.append([])
         titles.append([])
         kernels.append([])
+        time_to_spikes.append([])
         for i in range(n_orientations):
             theta = i * np.pi / n_orientations
             kernel = Gabor(lambd, theta, sigma, gamma).apply((n, n))
@@ -36,10 +40,13 @@ def q2(lambd, sigma, gamma, n_orientations, filter_sizes):
             conv = Convolution(n)
             filtered_im = conv.apply(image, kernel)
             filtered_images[-1].append(filtered_im)
+            time_to_spikes[-1].append(enc.apply(filtered_im))
             titles[-1].append("filter #{}: size={}, theta={}".format(ind, n, theta))
 
-    plot_images(np.array(kernels))
-    plot_images(np.array(filtered_images))
+    # plot_images(np.array(kernels))
+    # plot_images(np.array(filtered_images))
+
+    plot_images_time_to_spike(np.array(time_to_spikes))
 
 
 if __name__ == "__main__":
