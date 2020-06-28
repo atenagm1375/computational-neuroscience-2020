@@ -121,3 +121,21 @@ def activity_plot(out_activities, save_to=None):
     else:
         fig.savefig(save_to)
         plt.close()
+
+
+def plot_images(images, save_to=None):
+    n = len(images)
+
+    fig, axes = plt.subplots(n)
+
+    for i in range(n):
+        axes[i].imshow(images[i][0], "gray")
+        axes[i].set_title(images[i][1])
+
+    for ax in axes.flat:
+        ax.label_outer()
+    if save_to is None:
+        plt.show()
+    else:
+        fig.savefig(save_to)
+        plt.close()
