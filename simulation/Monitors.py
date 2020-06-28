@@ -123,14 +123,22 @@ def activity_plot(out_activities, save_to=None):
         plt.close()
 
 
-def plot_images(images, save_to=None):
-    n = len(images)
+def plot_images(images, titles=None, save_to=None):
+    shape = images.shape
 
-    fig, axes = plt.subplots(n)
+    fig, axes = plt.subplots(*shape)
+    if len(shape) < 2:
+        axes = axes.reshape((1, shape[0]))
+        images = images.reshape((1, shape[0]))
+        if titles is not None:
+            titles = titles.reshape((1, shape[0]))
+        shape = (1, shape[0])
 
-    for i in range(n):
-        axes[i].imshow(images[i][0], "gray")
-        axes[i].set_title(images[i][1])
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            axes[i, j].imshow(images[i, j], "gray")
+            if titles is not None:
+                axes[i, j].set_title(titles[i, j])
 
     for ax in axes.flat:
         ax.label_outer()

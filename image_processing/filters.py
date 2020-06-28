@@ -29,6 +29,6 @@ class Gabor:
             for y in range(size[1]):
                 xx = x * np.cos(self.theta) + y * np.sin(self.theta)
                 yy = -x * np.sin(self.theta) + y * np.cos(self.theta)
-                gabor[x][y] = np.exp(-(xx ** 2 + self.gamma ** 2 * yy ** 2) / 2 * self.sigma ** 2) * np.cos(
+                gabor[x][y] = np.exp(-(xx ** 2 + self.gamma ** 2 * yy ** 2) / (2 * self.sigma ** 2)) * np.cos(
                     2 * np.pi * xx / self.lambd)
         return gabor
