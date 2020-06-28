@@ -10,8 +10,9 @@ class Network:
         self.populations = populations
         self.connections = connections
 
-        self.in_unit = self.populations[0]
-        self.out_unit = self.populations[-1]
+        if populations is not None:
+            self.in_unit = self.populations[0]
+            self.out_unit = self.populations[-1]
         self.d = 0
         self.func_da = None
 
@@ -52,7 +53,7 @@ class Network:
                 self.__t, self.__t + time_window, self.dt)
             for pop in self.populations:
                 for neuron in pop.neurons:
-                    neuron.input = np.zeros(time_window // self.dt)
+                    neuron.input = np.zeros(int(time_window // self.dt))
                     neuron.duration = time_window
             for t in time_interval:
                 if t % 10 == 0:

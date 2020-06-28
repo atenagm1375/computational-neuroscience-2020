@@ -51,7 +51,7 @@ class Connection:
         elif connection_type == "fixed_pre":
             n = int(kwargs["p"] * self.post.size)
             for j, neuron_post in enumerate(self.post.neurons):
-                if neuron_post not in self.pre.input_part.neurons:
+                if self.pre.input_part is not None and neuron_post not in self.pre.input_part.neurons:
                     pres = np.random.choice(range(self.pre.size), n, replace=False)
                     for i in pres:
                         syn = Synapse(self.pre.neurons[i], neuron_post,
