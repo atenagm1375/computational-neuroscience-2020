@@ -19,12 +19,12 @@ class Convolution:
         outy = (image.shape[1] - self.size + 2 * padding) // stride + 1
         result = np.zeros((outx, outy))
         kernel = np.flipud(np.fliplr(kernel))
-        for j in range(new_image.shape[1]):
-            if j > new_image.shape[1] - self.size:
+        for i in range(new_image.shape[0]):
+            if i > new_image.shape[0] - self.size:
                 break
-            if j % stride == 0:
-                for i in range(new_image.shape[0]):
-                    if i > new_image.shape[0] - self.size:
+            if i % stride == 0:
+                for j in range(new_image.shape[1]):
+                    if j > new_image.shape[1] - self.size:
                         break
                     subset = new_image[i:i + self.size, j:j + self.size]
                     if i % stride == 0:

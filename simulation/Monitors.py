@@ -166,7 +166,7 @@ def plot_images_time_to_spike(time_to_spikes, save_to=None):
     fig, axes = plt.subplots(*shape)
     for i in range(shape[0]):
         for j in range(shape[1]):
-            sns.heatmap(time_to_spikes[i, j], ax=axes[i, j])
+            sns.heatmap(time_to_spikes[i, j], cmap="YlGnBu", ax=axes[i, j])
 
     for ax in axes.flat:
         ax.label_outer()
