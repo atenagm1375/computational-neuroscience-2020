@@ -11,7 +11,6 @@ class IntensityToLatency:
         shape = image.shape
         image /= np.max(image)
 
-        time_to_spike = np.zeros(shape)
         time_to_spike = np.reciprocal(image, where=image != 0)
         time_to_spike *= (time / np.max(time_to_spike))
         return np.ceil(time_to_spike.reshape(shape))

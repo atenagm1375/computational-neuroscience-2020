@@ -126,13 +126,22 @@ def activity_plot(out_activities, save_to=None):
 def plot_images(images, titles=None, save_to=None):
     shape = images.shape
 
-    fig, axes = plt.subplots(*shape)
-    if len(shape) < 2:
-        axes = axes.reshape((1, shape[0]))
-        images = images.reshape((1, shape[0]))
-        if titles is not None:
-            titles = titles.reshape((1, shape[0]))
+    if len(shape) == 3:
+        shape = (1, shape[0], shape[1], shape[2])
+    elif len(shape) < 2:
         shape = (1, shape[0])
+    fig, axes = plt.subplots(shape[0], shape[1])
+    if shape[0] == 1:
+        if len(shape) == 4:
+            axes = axes.reshape((1, shape[1]))
+            images = images.reshape(shape)
+            if titles is not None:
+                titles = titles.reshape((1, shape[1]))
+        else:
+            axes = axes.reshape(shape)
+            images = images.reshape(shape)
+            if titles is not None:
+                titles = titles.reshape(shape)
 
     for i in range(shape[0]):
         for j in range(shape[1]):
@@ -142,6 +151,7 @@ def plot_images(images, titles=None, save_to=None):
 
     for ax in axes.flat:
         ax.label_outer()
+
     if save_to is None:
         plt.show()
     else:
@@ -151,10 +161,16 @@ def plot_images(images, titles=None, save_to=None):
 
 def plot_images_time_to_spike(time_to_spikes, save_to=None):
     shape = time_to_spikes.shape
+    if len(shape) > 2:
+        shape = (shape[0], shape[1])
     fig, axes = plt.subplots(*shape)
     for i in range(shape[0]):
         for j in range(shape[1]):
             sns.heatmap(time_to_spikes[i, j], ax=axes[i, j])
+
+    for ax in axes.flat:
+        ax.label_outer()
+
     if save_to is None:
         plt.show()
     else:
