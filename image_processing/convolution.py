@@ -15,10 +15,11 @@ class Convolution:
             new_image = np.zeros(image.shape)
             new_image[:, :] = image
 
-        outx = (image.shape[0] - self.size + 2 * padding) // stride + 1
-        outy = (image.shape[1] - self.size + 2 * padding) // stride + 1
+        outx = int((image.shape[0] - self.size + 2 * padding) / stride + 1)
+        outy = int((image.shape[1] - self.size + 2 * padding) / stride + 1)
         result = np.zeros((outx, outy))
         kernel = np.flipud(np.fliplr(kernel))
+        kernel -= np.mean(kernel)
         for i in range(new_image.shape[0]):
             if i > new_image.shape[0] - self.size:
                 break
@@ -27,9 +28,10 @@ class Convolution:
                     if j > new_image.shape[1] - self.size:
                         break
                     subset = new_image[i:i + self.size, j:j + self.size]
-                    if i % stride == 0:
-                        result[i, j] = np.sum(kernel * subset)
-                    else:
+                    try:
+                        if j % stride == 0:
+                            result[i, j] = np.sum(kernel * subset)
+                    except IndexError:
                         break
 
         return result

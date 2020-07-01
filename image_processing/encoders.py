@@ -7,10 +7,31 @@ class IntensityToLatency:
         self.dt = dt
 
     def apply(self, image):
-        time = self.time_window // self.dt
         shape = image.shape
-        image /= np.max(image)
+        image = np.fabs(image)
+        interval = np.max(image) - np.min(image)
+        time_to_spike = np.zeros(shape)
+        time = self.time_window // self.dt
+        interval /= time
+        for t in range(time):
+            im1 = image >= t * interval
+            im2 = image < (t + 1) * interval
+            im = im1 * im2
+            time_to_spike += (time - t) * im
+        return time_to_spike
 
-        time_to_spike = np.reciprocal(image, where=image != 0)
-        time_to_spike *= (time / np.max(time_to_spike))
-        return np.ceil(time_to_spike.reshape(shape))
+
+class KSplit:
+    def __init__(self, k):
+        self.k = k
+
+    def apply(self, image):
+        interval = np.max(image) - np.min(image)
+        res = []
+        for i in range(self.k):
+            a = image - np.min(image)
+            im1 = i * (interval / self.k) < a
+            im2 = a < (i + 1) * (interval / self.k)
+            im = im1 * im2
+            res.append(im)
+        return res

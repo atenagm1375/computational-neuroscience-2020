@@ -130,7 +130,11 @@ def plot_images(images, titles=None, save_to=None):
         shape = (1, shape[0], shape[1], shape[2])
     elif len(shape) < 2:
         shape = (1, shape[0])
-    fig, axes = plt.subplots(shape[0], shape[1])
+
+    sns.axes_style("white")
+    sns.set_context("paper")
+    fig, axes = plt.subplots(shape[0], shape[1], figsize=(10, 8))
+
     if shape[0] == 1:
         if len(shape) == 4:
             axes = axes.reshape((1, shape[1]))
@@ -150,6 +154,7 @@ def plot_images(images, titles=None, save_to=None):
                 axes[i, j].set_title(titles[i, j])
 
     for ax in axes.flat:
+        ax.tick_params(axis='both', which='both', length=0)
         ax.label_outer()
 
     if save_to is None:
@@ -163,12 +168,17 @@ def plot_images_time_to_spike(time_to_spikes, save_to=None):
     shape = time_to_spikes.shape
     if len(shape) > 2:
         shape = (shape[0], shape[1])
-    fig, axes = plt.subplots(*shape)
+
+    sns.axes_style("white")
+    sns.set_context("paper")
+    fig, axes = plt.subplots(*shape, figsize=(14, 12))
     for i in range(shape[0]):
         for j in range(shape[1]):
             sns.heatmap(time_to_spikes[i, j], cmap="YlGnBu", ax=axes[i, j])
 
     for ax in axes.flat:
+        ax.tick_params(axis='both', which='both', length=0)
+        ax.set(yticks=[], xticks=[])
         ax.label_outer()
 
     if save_to is None:
