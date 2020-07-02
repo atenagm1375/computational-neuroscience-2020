@@ -1,7 +1,7 @@
 def q1_t1():
     sigma1 = 0.5
     sigma2 = 1.0
-    sizes = [5, 13, 21, 29, 37]
+    sizes = [7, 11, 15, 19, 23]
     pad = False
     stride = 1
     k = 3
@@ -11,7 +11,7 @@ def q1_t1():
 def q1_t2():
     sigma1 = 0.3
     sigma2 = 1.0
-    sizes = [5, 13, 21, 29, 37]
+    sizes = [7, 11, 15, 19, 23]
     pad = False
     stride = 1
     k = 3
@@ -21,7 +21,7 @@ def q1_t2():
 def q1_t3():
     sigma1 = 0.8
     sigma2 = 1.0
-    sizes = [5, 13, 21, 29, 37]
+    sizes = [7, 11, 15, 19, 23]
     pad = False
     stride = 1
     k = 3
@@ -31,7 +31,7 @@ def q1_t3():
 def q1_t4():
     sigma1 = 0.3
     sigma2 = 0.8
-    sizes = [5, 13, 21, 29, 37]
+    sizes = [7, 11, 15, 19, 23]
     pad = False
     stride = 1
     k = 3
@@ -41,7 +41,7 @@ def q1_t4():
 def q1_t5():
     sigma1 = 0.3
     sigma2 = 1.0
-    sizes = [5, 13, 21, 29, 37]
+    sizes = [7, 11, 15, 19, 23]
     pad = False
     stride = 1
     k = 4
@@ -51,7 +51,7 @@ def q1_t5():
 def q1_t6():
     sigma1 = 0.3
     sigma2 = 1.0
-    sizes = [5, 13, 21, 29, 37]
+    sizes = [7, 11, 15, 19, 23]
     pad = False
     stride = 1
     k = 5
